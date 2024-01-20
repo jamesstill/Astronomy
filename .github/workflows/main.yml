@@ -15,9 +15,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.x'
-      env:
-        NUGET_AUTH_TOKEN: $${{ secrets.nuget_api_key }}
-        source-url: https://api.nuget.org/v3/index.json
     - name: Build
       run: dotnet build -c Release
     - name: Test
@@ -25,5 +22,5 @@ jobs:
     - name: Package
       run: dotnet pack -c Release --no-build --output .
     - name: Push
-      run: dotnet nuget push bin/Release/*.nupkg 
+      run: dotnet nuget push bin/Release/*.nupkg -k $${{ secrets.nuget_api_key }} -s https://api.nuget.org/v3/index.json
       
