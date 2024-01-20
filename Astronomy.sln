@@ -10,7 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		README.md = README.md
-		release.yml = release.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SquareWidget.Astronomy.Core.Tests", "test\SquareWidget.Astronomy.Core.Tests\SquareWidget.Astronomy.Core.Tests.csproj", "{8884346E-6D10-4AC5-B75C-ACF66ADE23DC}"
