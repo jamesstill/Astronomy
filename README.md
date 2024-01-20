@@ -3,14 +3,16 @@
 
 This repository is home to the `SquareWidget.Astronomy.Core` code library project. This project is licensed under the [GNU GPLv3](LICENSE.txt) and maintained by James Still who hosts the [SquareWidget](https://squarewidget.com) blog. 
 
-## <img alt="" src="./logo/sw_logo_235_243.png"/>SquareWidget.Astronomy.Core
+<img alt="" width="100" height="105" src="./logo/sw_logo_235_243.png"/>
+
+# SquareWidget.Astronomy.Core
 
 SquareWidget.Astronomy.Core is a code library for .NET that supports common astronomical calculations and algorithms. 
 
 # Basic Usage
 ## Moment
 
-A `Moment` is any specific point in time down to the optional millisecond. Instantiate a `Moment` with a DateTime.
+A `Moment` is any specific point in time down to the optional millisecond. Instantiate a `Moment` with a `DateTime`.
 ```
 DateTime d = new(2024, 1, 31);
 Moment m = new(d);
@@ -26,7 +28,7 @@ Or the Julian Day Ephemeris (JD/JDE).
 Moment m = new(2436116.3120023147);
 Console.WriteLine(m.ToString()); // 1957-10-04 19:29:16Z
 ```
-A `Moment` will also return a JDE, a modified JDE, Day D, and the Time T from J2000.0.
+A `Moment` will also return a JDE, a modified JDE, Day D, and the Time T from the J2000.0 epoch.
 ```
 Moment m = new(1957, 10, 4, 7, 29, 17);
 double jde = m.JDE;   //  2436115.8120023147
@@ -79,7 +81,7 @@ Console.WriteLine(r.ToReducedAngle().ToString());             //   5.0123639
 Console.WriteLine(r.ToReducedAngle().ToDegrees().ToString()); // 287°.187300
 ```
 
-A `RightAscension` (RA) handles hours, minutes and seconds.
+A `RightAscension` handles hours, minutes and seconds (HMS).
 ```
 // passing in HMS
 RightAscension ra = new(12, 37, 27);
@@ -89,7 +91,7 @@ Console.WriteLine(ra.ToString());   // 12h 37m 27s
 RightAscension ra = new(189.3625);
 Console.WriteLine(ra.ToString()); // 12h 37m 27s
 ```
-A `SexagesimalAngle` represents degrees, arcminutes, and arcseconds.
+A `SexagesimalAngle` represents degrees, arcminutes, and arcseconds (DMS).
 ```
 SexigesimalAngle a = new(34, 10, 49);
 Console.WriteLine(a.ToString());      // +34° 10' 49"
@@ -192,7 +194,7 @@ R: 1.4962191891309637
 ```
 
 ## Calculators
-Calculators are standalone static classes compute an output. All calculators have a static method `Calculate` that expect one or more arguments for their purpose in order to return the calculated results. Currently, there are four calculators.
+Calculators are standalone static classes used to compute an output. All calculators have a method `Calculate` that expect one or more arguments and when called return the calculated results. Currently, there are four calculators.
 
 ### Nutation Calculator
 The Nutation Calculator returns the Earth's nutation components for a given `DateTime`. The algorithm uses periodic terms taken from the [IAU SOFA](https://iausofa.org) system.
@@ -248,7 +250,7 @@ Equitorial coordinates RA 21h 4m 42.46s and declination -18° 53' 12.07"
 */
 ```
 ### Solar Longitude Calculator
-The `SolarLongitudeCalculator` calculates the center-to-center geocentric longitude of the Sun on a given `DateTime`. The algorithm follows Jean Meeus, *Astronomical Algorithms*, Chapter 25.
+The `SolarLongitudeCalculator` calculates the center-to-center geocentric longitude of the Sun on a given `DateTime`. 
 ```
 DateTime datetime = new(1992, 10, 13);
 Degrees p = SolarLongitudeCalculator.Calculate(datetime);
@@ -283,3 +285,6 @@ The position angle P of Saturn's rings on 12/16/1992 is 6°.7404
 ```
 ### Sources
 Algorithms are implemented from many sources including formulas published on Wikipedia, NASA (DeltaT), the U.S. Naval Observatory, and from Jean Meeus *Astronomical Algorithms*, 2nd Edition. Additionally, I benefited from consulting W. M. Smart (*Textbook on Spherical Astronomy*, 6th Edition) and J. L. Lawrence (*Celestial Calculations*). Heliocentric spherical coordinates for all planets are from the [VSOP87 Theory Series D](https://phpsciencelabs.com/vsop87-source-code-generator-tool/) data. Last, the library uses nutations in longitude, obliquity, and the obliquity of the ecliptic from the [IAU SOFA](https://iausofa.org/) ANSI C code base.
+
+###  Contributing
+The code library will be stronger if there are many hands contributing to the code base. I welcome community pull requests for bug fixes, enhancements, and documentation. 
