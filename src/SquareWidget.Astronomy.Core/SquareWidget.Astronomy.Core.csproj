@@ -1,4 +1,4 @@
-﻿set <Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net80</TargetFramework>
