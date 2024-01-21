@@ -19,6 +19,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
     - name: Build
-      run: dotnet build --c Release
+      run: dotnet build -c Release
     - name: Test
-      run: dotnet test --c Release --no-build
+      run: dotnet test -c Release --no-build
