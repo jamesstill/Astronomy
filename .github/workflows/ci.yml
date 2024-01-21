@@ -1,0 +1,24 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - name: Setup
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.x'
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Build
+      run: dotnet build --c Release
+    - name: Test
+      run: dotnet test --c Release --no-build

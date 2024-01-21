@@ -1,0 +1,27 @@
+name: Release Package
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+-beta"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - name: Setup
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.x'
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Set VERSION variable from tag
+      run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+    - name: Build
+      run: dotnet build --c Release
+    - name: Test
+      run: dotnet test --c Release --no-build
+    - name: Package
+      run: dotnet pack -c Release /p:Version=${VERSION} --output .
+    - name: Push
+      run: dotnet nuget push SquareWidget.Astronomy.Core.${VERSION}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://int.nugettest.org/

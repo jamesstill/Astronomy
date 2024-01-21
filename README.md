@@ -3,9 +3,7 @@
 
 This repository is home to the `SquareWidget.Astronomy.Core` code library project. This project is licensed under the [GNU GPLv3](LICENSE.txt) and maintained by James Still who hosts the [SquareWidget](https://squarewidget.com) blog. 
 
-<img alt="" width="100" height="105" src="./logo/sw_logo_235_243.png"/>
-
-# SquareWidget.Astronomy.Core
+## SquareWidget.Astronomy.Core
 
 SquareWidget.Astronomy.Core is a code library for .NET that supports common astronomical calculations and algorithms. 
 
@@ -98,17 +96,16 @@ Console.WriteLine(a.ToString());      // +34° 10' 49"
 ```
 If the angle is negative pass in it with any value > 0. Do not pass in `-0` as this will fail.
 ```
-// FAIL
-SexigesimalAngle a = new(-0, 13, 49);
-SexigesimalAngle a = new(-0, -13, 49);
+SexigesimalAngle a = new(-0, 13, 49);   // NO
+SexigesimalAngle a = new(-0, -13, 49);  // NO
 
 // GOOD
-SexigesimalAngle a = new(0, -13, 49);
-SexigesimalAngle a = new(0, 0, -49);
+SexigesimalAngle a = new(0, -13, 49);   // YES!
+SexigesimalAngle a = new(0, 0, -49);    // YES!
 
 // Example Display Output
 SexigesimalAngle a = new(0, -13, 49);
-Console.WriteLine(a.ToString());      // -13' 49"
+Console.WriteLine(a.ToString());        // -13' 49"
 ```
 Two coordinate systems have been implemented: *equitorial* and *ecliptical*. Suppose we want to model Pollux (β Gem) using an `EquitorialCoordinate`:
 ```
