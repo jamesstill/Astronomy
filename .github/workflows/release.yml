@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -24,5 +24,5 @@ jobs:
     - name: Package
       run: dotnet pack -c Release /p:Version=${VERSION} --output .
     - name: Push
-      run: dotnet nuget push SquareWidget.Astronomy.Core.${VERSION}.nupkg --api-key ${{ secrets.TEST_NUGET_API_KEY }} --source https://int.nugettest.org/
+      run: dotnet nuget push SquareWidget.Astronomy.Core.${VERSION}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
       
