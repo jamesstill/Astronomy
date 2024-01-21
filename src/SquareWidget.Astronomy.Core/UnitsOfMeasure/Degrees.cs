@@ -56,7 +56,7 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         /// <summary>
         /// Given a decimal degree like 58.4168 return as 58°.4168
         /// </summary>
-        /// <param name="s"></param>
+        /// <param name="d"></param>
         /// <returns></returns>
         private string FormatDegree(double d)
         {

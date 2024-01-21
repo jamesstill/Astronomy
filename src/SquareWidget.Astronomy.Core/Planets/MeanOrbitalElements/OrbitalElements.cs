@@ -26,7 +26,7 @@ namespace SquareWidget.Astronomy.Core.Planets.MeanOrbitalElements
 
         /// <summary>
         /// Orbital eccentricity is a dimensionless parameter in the interval [0, 1) 
-        /// which is to say 0 <= e < 1 with 0 being a circle and 1 being a parabola.
+        /// which is to say <![CDATA[0 <= e < 1]]> with 0 being a circle and 1 being a parabola.
         /// </summary>
         /// <returns>double in range [0, 1)</returns>
         public double e { get; set; }
