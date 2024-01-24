@@ -1,4 +1,5 @@
-﻿using SquareWidget.Astronomy.Core.UnitsOfMeasure;
+﻿using SquareWidget.Astronomy.Core.Models;
+using SquareWidget.Astronomy.Core.UnitsOfMeasure;
 using System;
 
 namespace SquareWidget.Astronomy.Core.Calculators

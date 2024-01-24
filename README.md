@@ -1,4 +1,5 @@
 ﻿
+
 # Repository
 
 [![Build and Test](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml/badge.svg)](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml)
@@ -96,12 +97,11 @@ A `SexagesimalAngle` represents degrees, arcminutes, and arcseconds (DMS).
 SexigesimalAngle a = new(34, 10, 49);
 Console.WriteLine(a.ToString());      // +34° 10' 49"
 ```
-If the angle is negative pass in it with any value > 0. Do not pass in `-0` as this will fail.
+If the angle is negative pass the sign in with any value > 0. Do not pass in `-0` as this will fail.
 ```
 SexigesimalAngle a = new(-0, 13, 49);   // NO
 SexigesimalAngle a = new(-0, -13, 49);  // NO
 
-// GOOD
 SexigesimalAngle a = new(0, -13, 49);   // YES!
 SexigesimalAngle a = new(0, 0, -49);    // YES!
 
@@ -193,7 +193,7 @@ R: 1.4962191891309637
 ```
 
 ## Calculators
-Calculators are standalone static classes used to compute an output. All calculators have a method `Calculate` that expect one or more arguments and when called return the calculated results. Currently, there are four calculators.
+Calculators are standalone static classes used to compute an output. All calculators have a method `Calculate` that expect one or more arguments and when called return the calculated results.
 
 ### Nutation Calculator
 The Nutation Calculator returns the Earth's nutation components for a given `DateTime`. The algorithm uses periodic terms taken from the [IAU SOFA](https://iausofa.org) system.
@@ -282,6 +282,40 @@ Console.WriteLine($"The position angle P of Saturn's rings on {d} is {p}");
 The position angle P of Saturn's rings on 12/16/1992 is 6°.7404
 */
 ```
+### Sundial Calculator
+This calculator takes any latitude and returns the hour angles for a horizontal sundial in the range 6 AM to 6 PM. Solar noon will always be 0. The calcuator expects the latitude as a `Degrees` object and returns a `List<HourAngle>` where each `HourAngle` has an hour (in 24-hour time) and a degree value. See my blog entry [Let's Make a Sundial](https://squarewidget.com/lets-make-a-sundial/) for a detailed explanation.
+
+```
+SexigesimalAngle latitude = new(51, 30, 26); // London UK
+Degrees d = latitude.ToDegrees();
+
+List<HourAngle> hourAngles = SundialCalculator.Calculate(d);
+
+Console.WriteLine($"Latitude: {d}");
+foreach (HourAngle ha in hourAngles)
+{
+    Console.WriteLine(ha.ToString());
+}
+
+/* Displays:
+
+Latitude: 51°.50
+6 AM: -90.00
+7 AM: -71.10
+8 AM: -53.58
+9 AM: -38.04
+10 AM: -24.31
+11 AM: -11.84
+12 Solar Noon: 0.00
+1 PM: 11.84
+2 PM: 24.31
+3 PM: 38.04
+4 PM: 53.58
+5 PM: 71.10
+6 PM: 90.00
+*/
+```
+
 ### Sources
 Algorithms are implemented from many sources including formulas published on Wikipedia, NASA (DeltaT), the U.S. Naval Observatory, and from Jean Meeus *Astronomical Algorithms*, 2nd Edition. Additionally, I benefited from consulting W. M. Smart (*Textbook on Spherical Astronomy*, 6th Edition) and J. L. Lawrence (*Celestial Calculations*). Heliocentric spherical coordinates for all planets are from the [VSOP87 Theory Series D](https://phpsciencelabs.com/vsop87-source-code-generator-tool/) data. Last, the library uses nutations in longitude, obliquity, and the obliquity of the ecliptic from the [IAU SOFA](https://iausofa.org/) ANSI C code base.
 

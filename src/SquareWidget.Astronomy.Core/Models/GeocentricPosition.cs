@@ -1,4 +1,6 @@
-﻿namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
+﻿using SquareWidget.Astronomy.Core.UnitsOfMeasure;
+
+namespace SquareWidget.Astronomy.Core.Models
 {
     public class GeocentricPosition
     {
