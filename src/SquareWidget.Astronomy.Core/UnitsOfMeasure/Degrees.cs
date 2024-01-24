@@ -62,6 +62,11 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         {
             string s = d.ToString();
             int pos = s.IndexOf('.');
+            if (pos == -1)
+            {
+                return s + "°";
+            }
+
             return s.Insert(pos, "°");
         }
     }

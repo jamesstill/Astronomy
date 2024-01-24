@@ -1,4 +1,5 @@
-﻿using SquareWidget.Astronomy.Core.Planets;
+﻿using SquareWidget.Astronomy.Core.Models;
+using SquareWidget.Astronomy.Core.Planets;
 using SquareWidget.Astronomy.Core.UnitsOfMeasure;
 using System;
 
