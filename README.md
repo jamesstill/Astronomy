@@ -1,5 +1,6 @@
 ﻿
 
+
 # Repository
 
 [![Build and Test](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml/badge.svg)](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml)
@@ -314,6 +315,45 @@ Latitude: 51°.50
 5 PM: 71.10
 6 PM: 90.00
 */
+```
+
+### Moon Phase Calculator
+This calculator takes any `DateRange` and returns a `List<MoonPhase>` of all New, First Quarter, Full, and Last Quarter phases within that date range. The algorithm looks for the first New Moon so it will back date as needed. See my blog entry [Calculate New Moon Dates](https://squarewidget.com/calculate-new-moon-dates/) for more information.
+
+To call the calculator build a `DateRange` and pass it into the `MoonPhaseDatesCalculator`:
+```
+DateOnly startDate = new(2001, 1, 1);
+DateOnly endDate = new(2001, 3, 31);
+DateRange dateRange = new(startDate, endDate);
+
+List<MoonPhase> list = MoonPhaseDatesCalculator.Calculate(dateRange);
+
+foreach (var item in list)
+{
+    Console.WriteLine(item.PhaseName + " on " + 
+        item.Moment.ToDateTime().ToString("MM/dd/yyyy hh:mm:ss.fff tt"));
+} 
+
+/* Displays:
+
+NewMoon on 12/12/2023 11:31:56.104 PM
+FirstQuarter on 12/19/2023 06:38:38.642 PM
+LastQuarter on 01/04/2024 03:29:52.367 AM
+FullMoon on 01/25/2024 05:53:56.037 PM
+NewMoon on 01/11/2024 11:57:17.998 AM
+FirstQuarter on 01/18/2024 03:52:16.562 AM
+LastQuarter on 02/02/2024 11:16:32.109 PM
+FullMoon on 02/24/2024 12:30:20.701 PM
+NewMoon on 02/09/2024 10:59:01.823 PM
+FirstQuarter on 02/16/2024 03:00:53.313 PM
+LastQuarter on 03/03/2024 03:22:37.828 PM
+FullMoon on 03/25/2024 07:00:16.474 AM
+NewMoon on 03/10/2024 09:00:18.809 AM
+FirstQuarter on 03/17/2024 04:11:41.721 AM
+LastQuarter on 04/02/2024 03:14:34.767 AM
+FullMoon on 04/23/2024 11:48:59.432 PM
+*/
+
 ```
 
 ### Sources

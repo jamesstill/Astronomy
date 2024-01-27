@@ -11,4 +11,11 @@
         public const string Uranus = "Uranus";
         public const string Neptune = "Neptune";
     }
+    public static class PhaseName
+    {
+        public const string NewMoon = "NewMoon";
+        public const string FirstQuarter = "FirstQuarter";
+        public const string FullMoon = "FullMoon";
+        public const string LastQuarter = "LastQuarter";
+    }
 }

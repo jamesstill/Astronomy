@@ -162,6 +162,19 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
             return new Moment(DateTime.UtcNow);
         }
 
+        /// <summary>
+        /// Converts calendar date to decimal date. For example, the total solar 
+        /// eclipse of 21 May 1993 (141st day of year) would be decimal 1993.38.
+        /// </summary>
+        /// <returns></returns>
+        public double ToDecimalYear()
+        {
+            DateTime d = new DateTime(Year, Month, Day);
+            double daysInYear = (DateTime.IsLeapYear(Year)) ? 366 : 365.2425;
+            var fraction = d.DayOfYear / daysInYear;
+            return d.Year + fraction;
+        }
+
         public DateTime ToDateTime()
         {
             return new DateTime(Year, Month, Day, Hour, Minute, Second, Millisecond);
