@@ -8,7 +8,10 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
     public readonly struct Radians
     {
         private readonly double value;
-
+        /// <summary>
+        /// Initialize with a value in radians
+        /// </summary>
+        /// <param name="value">value in radians not decimal degrees</param>
         public Radians(double value)
         {
             this.value = value;

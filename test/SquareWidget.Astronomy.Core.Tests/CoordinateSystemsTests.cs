@@ -1,4 +1,5 @@
-﻿using SquareWidget.Astronomy.Core.UnitsOfMeasure;
+﻿using SquareWidget.Astronomy.Core.CelestialObjects.Stars;
+using SquareWidget.Astronomy.Core.UnitsOfMeasure;
 
 namespace SquareWidget.Astronomy.Core.Tests
 {
@@ -77,6 +78,27 @@ namespace SquareWidget.Astronomy.Core.Tests
             Assert.Equal(0, δ.Degrees);
             Assert.Equal(43, δ.Minutes);
             Assert.Equal(35.509946, δ.Seconds, tolerance);
+        }
+
+        [Fact]
+        public void Test_Sun_Position_1992_Oct_13()
+        {
+            double tolerance = 0.0001;
+
+            DateTime datetime = new(1992, 10, 13);
+            Moment moment = new(datetime);
+            Sun sun = new(moment);
+
+            EquitorialCoordinates g = sun.GetGeocentricPosition();
+
+            Assert.Equal(13, g.α.Hours);
+            Assert.Equal(13, g.α.Minutes);
+            Assert.Equal(31.4565, g.α.Seconds, tolerance);
+            Assert.Equal(-7.78447, g.δ.ToDecimalDegrees(), tolerance);
+            Assert.True(g.δ.IsNegative);
+            Assert.Equal(7, g.δ.Degrees);
+            Assert.Equal(47, g.δ.Minutes);
+            Assert.Equal(4.12007, g.δ.Seconds, tolerance);
         }
     }
 }

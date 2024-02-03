@@ -14,6 +14,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SquareWidget.Astronomy.Core.Tests", "test\SquareWidget.Astronomy.Core.Tests\SquareWidget.Astronomy.Core.Tests.csproj", "{8884346E-6D10-4AC5-B75C-ACF66ADE23DC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1-PlanetaryDistance", "src\1-PlanetaryDistance\1-PlanetaryDistance.csproj", "{89D107AB-31C4-4E40-807E-599C89D2257A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2-SolarCoordinates", "src\2-SolarCoordinates\2-SolarCoordinates.csproj", "{9F7F7323-A780-4109-ACA8-6DA16D84D8DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +32,14 @@ Global
 		{8884346E-6D10-4AC5-B75C-ACF66ADE23DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8884346E-6D10-4AC5-B75C-ACF66ADE23DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8884346E-6D10-4AC5-B75C-ACF66ADE23DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89D107AB-31C4-4E40-807E-599C89D2257A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89D107AB-31C4-4E40-807E-599C89D2257A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89D107AB-31C4-4E40-807E-599C89D2257A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89D107AB-31C4-4E40-807E-599C89D2257A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F7F7323-A780-4109-ACA8-6DA16D84D8DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F7F7323-A780-4109-ACA8-6DA16D84D8DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F7F7323-A780-4109-ACA8-6DA16D84D8DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F7F7323-A780-4109-ACA8-6DA16D84D8DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

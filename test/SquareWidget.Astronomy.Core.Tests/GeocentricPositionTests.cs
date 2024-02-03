@@ -1,4 +1,5 @@
 ﻿using SquareWidget.Astronomy.Core.Calculators;
+using SquareWidget.Astronomy.Core.CelestialObjects.Stars;
 using SquareWidget.Astronomy.Core.Models;
 using SquareWidget.Astronomy.Core.UnitsOfMeasure;
 
@@ -54,6 +55,6 @@ namespace SquareWidget.Astronomy.Core.Tests
             Degrees P = SaturnRingPositionAngleCalculator.Calculate(g, datetime);
 
             Assert.Equal(5.834080, P, tolerance);
-        }  
+        }
     }
 }
