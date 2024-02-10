@@ -9,9 +9,9 @@ namespace SquareWidget.Astronomy.Core.Models
 
         public DateRange(DateOnly startDate, DateOnly endDate)
         {
-            if (endDate <= startDate)
+            if (endDate < startDate)
             {
-                throw new ArgumentOutOfRangeException(nameof(endDate), "End date must be greater than start date.");
+                throw new ArgumentOutOfRangeException(nameof(endDate), "End date must be greater than or equal to start date.");
             }
 
             this.StartDate = startDate;

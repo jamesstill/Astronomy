@@ -90,7 +90,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
         }
 
         /// <summary>
-        /// Meeus (49.2)
         /// Baseline value k where k = 0 is 6 Jan 2000 (first new moon of J2000.0 epoch).
         /// </summary>
         /// <param name="m">Moment</param>
@@ -102,7 +101,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
         }
 
         /// <summary>
-        /// Meeus (49.3)
         /// Time T is the time in Julian centuries since the J2000.0 epoch
         /// </summary>
         /// <param name="k"></param>
@@ -113,7 +111,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
         }
 
         /// <summary>
-        /// Meeus (49.1)
         /// Time of mean conjuction or opposition
         /// </summary>
         /// <param name="k"></param>
@@ -129,7 +126,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
         }
 
         /// <summary>
-        /// Meeus (47.6)
         /// Earth's eccentricity in orbit
         /// </summary>
         /// <param name="T"></param>
@@ -140,7 +136,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
         }
 
         /// <summary>
-        /// Meeus (49.4)
         /// Sun's mean anomaly at time JDE
         /// </summary>
         /// <param name="k"></param>
@@ -157,7 +152,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
         }
 
         /// <summary>
-        /// Meeus (49.5)
         /// Moon's mean anomaly at time JDE
         /// </summary>
         /// <param name="k"></param>
@@ -175,7 +169,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
         }
 
         /// <summary>
-        /// Meeus (49.6)
         /// Moon's argument of latitude
         /// </summary>
         /// <param name="k"></param>
@@ -193,7 +186,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
         }
 
         /// <summary>
-        /// Meeus (49.7)
         /// Longitude of the ascending node of the lunar orbit
         /// </summary>
         /// <param name="k"></param>
@@ -211,7 +203,7 @@ namespace SquareWidget.Astronomy.Core.Calculators
 
         /// <summary>
         /// Planetary coefficients A1 thru A14 in degrees as 
-        /// periodic terms for correction to JDE (p. 351).
+        /// periodic terms for correction to JDE.
         /// </summary>
         /// <param name="k"></param>
         /// <param name="T"></param> 
@@ -408,8 +400,7 @@ namespace SquareWidget.Astronomy.Core.Calculators
         }
 
         /// <summary>
-        /// Given the corrected JDE for the new moon event adjust 
-        /// for Delta T and return UTC
+        /// Given the corrected JDE for the new moon event adjust for Delta T and return UTC
         /// </summary>
         /// <param name="correctedJDE">Corrected JDE</param>
         /// <returns></returns>
@@ -426,14 +417,15 @@ namespace SquareWidget.Astronomy.Core.Calculators
 
         /// <summary>
         /// Given a value of k in which the integral is in the range 0.0, 0.25, 0.50, or 0.75
-        /// return the matching moon phase name.
+        /// return the matching moon phase name. Negative values of k can result from dates 
+        /// earlier than the J2000.0 epoch. 
         /// </summary>
         /// <param name="k"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         private static string GetPhaseName(double k)
         {
-            double trunc = k - Math.Truncate(k);
+            double trunc = Math.Abs(k - Math.Truncate(k));
             switch (trunc)
             {
                 case 0.0:
