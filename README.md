@@ -1,6 +1,7 @@
 ﻿
 
 
+
 # Repository
 
 [![Build and Test](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml/badge.svg)](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml)
@@ -354,6 +355,31 @@ LastQuarter on 04/02/2024 03:14:34.767 AM
 FullMoon on 04/23/2024 11:48:59.432 PM
 */
 
+```
+
+### Solar Eclipse Calculator
+The `SolarEclipseCalculator` takes a `DateRange` and returns an `IEnumerable<SolarEclipse>` of all eclipses withing the date range. A `SolarEclipse` contains the date and time of the eclipse, the eclipse type, its magnitude, and the gamma (γ) value. Gamma can be positive or negative representing whether the axis of the shadow falls north or south of the equator, respectively.
+There are four eclipse types: *total*, *annular*, *partial*, and *hybrid*. See my [detailed blog post on solar eclipses](https://squarewidget.com/calculate-future-solar-eclipses/) for a description of eclipse events and these four types. 
+
+Consult the sample console app entitled **3-SolarEclipses** on [GitHub](https://github.com/jamesstill/Astronomy) for an example that exercises the calculator. 
+
+```
+DateOnly startDate = new(1785, 1, 1);
+DateOnly endDate = new(1785, 12, 31);
+DateRange dateRange = new(startDate, endDate);
+
+IEnumerable<SolarEclipse> eclipses = SolarEclipseCalculator.Calculate(dateRange);
+
+foreach (var eclipse in eclipses)
+{
+    Console.WriteLine(eclipse.ToString());
+}
+
+/* Displays:
+
+02-09-1785 12:41 UTC  magnitude:        g:  0.0086   Total
+08-05-1785 01:38 UTC  magnitude:        g: -0.0825   Annular
+*/
 ```
 
 ### Sources

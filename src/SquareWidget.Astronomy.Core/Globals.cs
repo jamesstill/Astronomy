@@ -18,4 +18,13 @@
         public const string FullMoon = "FullMoon";
         public const string LastQuarter = "LastQuarter";
     }
+
+    public static class EclipseType
+    {
+        public const string Partial = "Partial";
+        public const string Total = "Total";
+        public const string Annular = "Annular";
+        public const string Hybrid = "Hybrid";
+        public const string Unknown = "Unknown";
+    }
 }
