@@ -8,7 +8,6 @@
 
 */
 
-
 using SquareWidget.Astronomy.Core.Calculators;
 using SquareWidget.Astronomy.Core.Models;
 

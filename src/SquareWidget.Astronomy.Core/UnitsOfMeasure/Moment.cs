@@ -6,12 +6,7 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
 {
     /// <summary>
     /// A moment is a specific point in time down to the optional millisecond.
-    /// 
-    /// TODO: The caller must tell us if the moment is UT or TD because:
-    ///       1977 APR 26.4 UT ==  JD 2443 259.9
-    ///       1977 APR 26.4 TD == JDE 2443 259.9
-    ///       
-    /// See Meeus p. 59
+    /// Calculators assume that the passed in date is universal time.
     /// </summary>
     public readonly struct Moment
     {
