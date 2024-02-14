@@ -1,7 +1,4 @@
 ﻿
-
-
-
 # Repository
 
 [![Build and Test](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml/badge.svg)](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml)
@@ -379,6 +376,74 @@ foreach (var eclipse in eclipses)
 
 02-09-1785 12:41 UTC  magnitude:        g:  0.0086   Total
 08-05-1785 01:38 UTC  magnitude:        g: -0.0825   Annular
+*/
+```
+
+### Positions of the Galilean Moons of Jupiter Calculator
+The `JupiterSatellitePositionCalculator` takes any `DateTime` and returns a `SatellitePositions` that describes the apparent rectangular coordinates of each of the four Galilean satellites for the date. Consult the sample console app entitled **4-JupiterSatellitePositions** on [GitHub](https://github.com/jamesstill/Astronomy) for an example that exercises the calculator.  In this code sample we are getting the satellite positions for the upcoming week. Note that the `SatellitePositions` class overrides the `ToString()` method and rounds off decimal points to two places just for display purposes.
+
+```
+using SquareWidget.Astronomy.Core.Calculators;
+using SquareWidget.Astronomy.Core.Models;
+
+DateTime startDate = DateTime.Today;
+DateTime endDate = startDate.AddDays(7);
+
+for (var d = startDate; d <= endDate; d = d.AddDays(1))
+{
+    SatellitePositions positions = JupiterSatellitePositionCalculator.Calculate(d);
+    Console.WriteLine(positions.ToString());
+}
+
+/* Displays:
+
+2/14/2024 12:01 AM
+      Io - X:  -1.07   Y:  -0.30
+  Europa - X:  -8.87   Y:   0.16
+Ganymede - X:  13.76   Y:   0.30
+Callisto - X:   4.22   Y:   1.33
+
+2/15/2024 12:01 AM
+      Io - X:  -1.36   Y:   0.29
+  Europa - X:  -1.04   Y:  -0.48
+Ganymede - X:   4.27   Y:   0.74
+Callisto - X:  -5.64   Y:   1.32
+
+2/16/2024 12:01 AM
+      Io - X:   3.48   Y:  -0.25
+  Europa - X:   9.40   Y:   0.05
+Ganymede - X:  -8.30   Y:   0.64
+Callisto - X: -14.71   Y:   1.12
+
+2/17/2024 12:01 AM
+      Io - X:  -5.12   Y:   0.15
+  Europa - X:  -2.44   Y:   0.47
+Ganymede - X: -14.92   Y:   0.09
+Callisto - X: -21.73   Y:   0.77
+
+2/18/2024 12:01 AM
+      Io - X:   5.85   Y:  -0.04
+  Europa - X:  -8.36   Y:  -0.21
+Ganymede - X: -10.85   Y:  -0.53
+Callisto - X: -25.74   Y:   0.31
+
+2/19/2024 12:01 AM
+      Io - X:  -5.67   Y:  -0.09
+  Europa - X:   5.91   Y:  -0.37
+Ganymede - X:   0.99   Y:  -0.77
+Callisto - X: -26.21   Y:  -0.19
+
+2/20/2024 12:01 AM
+      Io - X:   4.54   Y:   0.19
+  Europa - X:   6.16   Y:   0.37
+Ganymede - X:  12.12   Y:  -0.45
+Callisto - X: -23.12   Y:  -0.67
+
+2/21/2024 12:01 AM
+      Io - X:  -2.69   Y:  -0.27
+  Europa - X:  -8.09   Y:   0.24
+Ganymede - X:  14.50   Y:   0.19
+Callisto - X: -16.89   Y:  -1.05
 */
 ```
 
