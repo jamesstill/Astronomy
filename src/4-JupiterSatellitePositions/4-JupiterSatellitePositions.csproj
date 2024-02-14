@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\SquareWidget.Astronomy.Core\SquareWidget.Astronomy.Core.csproj" />
+    <ProjectReference Include="..\SquareWidget.Astronomy.Core\SquareWidget.Astronomy.Core.csproj" />
   </ItemGroup>
 
 </Project>
