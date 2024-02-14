@@ -11,8 +11,6 @@
 using SquareWidget.Astronomy.Core.Calculators;
 using SquareWidget.Astronomy.Core.Models;
 
-//DateOnly startDate = new(2022, 1, 1);
-//DateOnly endDate = new(2035, 12, 31);
 DateOnly startDate = new(1785, 1, 1);
 DateOnly endDate = new(1785, 12, 31);
 DateRange dateRange = new(startDate, endDate);

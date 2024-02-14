@@ -93,12 +93,12 @@ namespace SquareWidget.Astronomy.Core.Tests
 
             Assert.Equal(13, g.α.Hours);
             Assert.Equal(13, g.α.Minutes);
-            Assert.Equal(31.4565, g.α.Seconds, tolerance);
-            Assert.Equal(-7.78447, g.δ.ToDecimalDegrees(), tolerance);
+            Assert.Equal(31.398103, g.α.Seconds, tolerance);
+            Assert.Equal(-7.785069, g.δ.ToDecimalDegrees(), tolerance);
             Assert.True(g.δ.IsNegative);
             Assert.Equal(7, g.δ.Degrees);
             Assert.Equal(47, g.δ.Minutes);
-            Assert.Equal(4.12007, g.δ.Seconds, tolerance);
+            Assert.Equal(6.249366, g.δ.Seconds, tolerance);
         }
     }
 }

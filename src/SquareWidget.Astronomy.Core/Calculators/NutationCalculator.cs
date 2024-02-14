@@ -1,4 +1,5 @@
 ﻿using SquareWidget.Astronomy.Core.Models;
+using SquareWidget.Astronomy.Core.Planets;
 using SquareWidget.Astronomy.Core.UnitsOfMeasure;
 using System;
 using System.Collections.Generic;
@@ -70,25 +71,13 @@ namespace SquareWidget.Astronomy.Core.Calculators
             double longitude = dpsi * (180 / Math.PI);
             double obliquity = deps * (180 / Math.PI);
 
-            // Earth's mean obliquity of the ecliptic
-            double U = t / 100;
-            double e0 =
-                new SexigesimalAngle(23, 26, 21.448)
-                - new SexigesimalAngle(0, 0, 4680.93) * U
-                - 1.55 * Math.Pow(U, 2)
-                + 1999.25 * Math.Pow(U, 3)
-                - 51.38 * Math.Pow(U, 4)
-                - 249.67 * Math.Pow(U, 5)
-                - 39.05 * Math.Pow(U, 6)
-                + 7.12 * Math.Pow(U, 7)
-                + 27.87 * Math.Pow(U, 8)
-                + 5.79 * Math.Pow(U, 9)
-                + 2.45 * Math.Pow(U, 10);
+            Earth earth = new(moment);
+            SexigesimalAngle e0 = earth.MeanObliquity;
 
             SexigesimalAngle ΔΨ = new(longitude);
             SexigesimalAngle Δε = new(obliquity);
 
-            double e = e0 + Δε.ToDecimalDegrees();
+            double e = e0.ToDecimalDegrees() + Δε.ToDecimalDegrees();
             SexigesimalAngle ε = new(e);
 
             return new Nutation
