@@ -14,7 +14,7 @@ DateTime d = new(1992, 10, 13);
 Moment moment = new(d);
 Sun sun = new(moment);
 
-EquitorialCoordinates ec = sun.GetGeocentricPosition();
+EquatorialCoordinates ec = sun.GetGeocentricPosition();
 
 Console.WriteLine($"On {d.ToShortDateString()} the apparent position of the Sun was at RA {ec.α.ToString()} and Dec {ec.δ.ToString()}.");
 

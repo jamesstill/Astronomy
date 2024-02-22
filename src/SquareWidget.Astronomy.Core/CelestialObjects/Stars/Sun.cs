@@ -105,7 +105,7 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Stars
         /// of the date per Jean Meeus, Astronomical Algorithms, 2nd Ed, Chap 25.
         /// </summary>
         /// <returns></returns>
-        public EquitorialCoordinates GetGeocentricPosition()
+        public EquatorialCoordinates GetGeocentricPosition()
         {
             double T = _moment.T;
 
@@ -132,7 +132,7 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Stars
             RightAscension ra = new RightAscension(a.ToDegrees().ToReducedAngle());
             SexigesimalAngle dec = new(d.ToDegrees());
 
-            return new EquitorialCoordinates(dec, ra, e);
+            return new EquatorialCoordinates(dec, ra, e);
         }
     }
 }

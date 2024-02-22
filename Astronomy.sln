@@ -20,7 +20,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "2-SolarCoordinates", "src\2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "3-SolarEclipses", "src\3-SolarEclipses\3-SolarEclipses.csproj", "{EDF6BBA9-1A16-4485-B95B-62F82EA9ABAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "4-JupiterSatellitePositions", "src\4-JupiterSatellitePositions\4-JupiterSatellitePositions.csproj", "{8B1D02F4-1D1F-4077-A260-07ECCD1A962D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "4-JupiterSatellitePositions", "src\4-JupiterSatellitePositions\4-JupiterSatellitePositions.csproj", "{8B1D02F4-1D1F-4077-A260-07ECCD1A962D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "5-HorizonCoordinates", "src\5-HorizonCoordinates\5-HorizonCoordinates.csproj", "{BD5C8509-929E-4B53-B4DE-6998459086A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +54,10 @@ Global
 		{8B1D02F4-1D1F-4077-A260-07ECCD1A962D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B1D02F4-1D1F-4077-A260-07ECCD1A962D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B1D02F4-1D1F-4077-A260-07ECCD1A962D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD5C8509-929E-4B53-B4DE-6998459086A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD5C8509-929E-4B53-B4DE-6998459086A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD5C8509-929E-4B53-B4DE-6998459086A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD5C8509-929E-4B53-B4DE-6998459086A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

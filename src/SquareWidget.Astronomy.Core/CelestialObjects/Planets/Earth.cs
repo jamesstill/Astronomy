@@ -40,7 +40,7 @@ namespace SquareWidget.Astronomy.Core.Planets
 
 
         /// <summary>
-        /// Return the eccentricity of the Earth's orbit following Jean Meeus, Astronomical 
+        /// Return the eccentricity (e) of the Earth's orbit following Jean Meeus, Astronomical 
         /// Algorithms (25.4). Eccentricity is a dimensionless parameter in the interval [0, 1)  
         /// </summary>
         public double OrbitalEccentricity
@@ -67,7 +67,7 @@ namespace SquareWidget.Astronomy.Core.Planets
         }
 
         /// <summary>
-        /// Mean obliquity of the ecliptic per Meeus (22.2)
+        /// Mean obliquity of the ecliptic (ε) per Meeus (22.2)
         /// </summary>
         public SexigesimalAngle MeanObliquity
         {
