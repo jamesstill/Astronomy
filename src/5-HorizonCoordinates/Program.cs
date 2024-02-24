@@ -36,11 +36,6 @@ RightAscension α = new(23, 9, 16.641);
 SexigesimalAngle δ = new(-6, 43, 11.61);
 EquatorialCoordinates eqc = new(δ, α, ε.ToDegrees());
 
-SiderealTime st = new(moment);
-RightAscension gmst = new(st.GreenwichMean);
-RightAscension gast = new(st.GreenwichApparent);
-Degrees H = st.ToHourAngle(L, α);
-
 // construct the horizontal coordinates
 HorizontalCoordinates hc = new(moment, φ, L, eqc);
 
@@ -63,3 +58,4 @@ Console.WriteLine("Venus horizontal coordinates converted back into equatorial c
 Console.WriteLine(string.Empty);
 Console.WriteLine("Venus α: " + ec.α.ToString());
 Console.WriteLine("Venus δ: " + ec.δ.ToString());
+

@@ -46,14 +46,14 @@ namespace SquareWidget.Astronomy.Core.Tests
         public void Test_Local_Sidereal_Time_2024_Feb_19()
         {
             double tolerance = 0.0001;
-            DateTime datetime = new(2024, 2, 19, 2, 0, 0); // UTC at Greenwich
+            DateTime datetime = new(2024, 2, 19, 2, 0, 0); // UTC
             Moment moment = new Moment(datetime);
             SiderealTime st = new(moment);
 
             RightAscension gmst = new(st.GreenwichMean);
 
             SexigesimalAngle L = new(-123, 15, 43.34); // longitude in Corvallis, OR
-            RightAscension lst = new(st.ToLocalMean(L));   // local mean sidereal time on the date (PST -8 offset)
+            RightAscension lst = st.ToLocalMean(L);   // local mean sidereal time on the date (PST -8 offset)
 
             Assert.Equal(2460359.583333, moment.JDE, tolerance);
             Assert.Equal(178.5315, gmst.ToDegrees(), tolerance);

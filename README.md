@@ -1,4 +1,5 @@
 ﻿
+
 # Repository
 
 [![Build and Test](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml/badge.svg)](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml)
@@ -48,10 +49,13 @@ It is necessary to have units of measure for celestial calculations and to be ab
  - Nutation
  - Right Ascension
  - Sexagesimal Angle
+ - Sidereal Time
+ - Horizontal Coordinates
  - Ecliptical Coordinates
- - Equitorial Coordinates
+ - Equatorial Coordinates
  - Geocentric Position
 
+### Degrees and Radians
 A `Degree` struct can be instantiated in several ways.
 ```
 Degrees d = new(23.4328); // decimal degrees
@@ -80,6 +84,7 @@ Console.WriteLine("r0: " +  r.ToString());                    // 444.8353354
 Console.WriteLine(r.ToReducedAngle().ToString());             //   5.0123639
 Console.WriteLine(r.ToReducedAngle().ToDegrees().ToString()); // 287°.187300
 ```
+### Right Ascension
 
 A `RightAscension` handles hours, minutes and seconds (HMS).
 ```
@@ -91,6 +96,8 @@ Console.WriteLine(ra.ToString());   // 12h 37m 27s
 RightAscension ra = new(189.3625);
 Console.WriteLine(ra.ToString()); // 12h 37m 27s
 ```
+### Sexagesimal Angle
+
 A `SexagesimalAngle` represents degrees, arcminutes, and arcseconds (DMS).
 ```
 SexigesimalAngle a = new(34, 10, 49);
@@ -108,25 +115,105 @@ SexigesimalAngle a = new(0, 0, -49);    // YES!
 SexigesimalAngle a = new(0, -13, 49);
 Console.WriteLine(a.ToString());        // -13' 49"
 ```
-Two coordinate systems have been implemented: *equitorial* and *ecliptical*. Suppose we want to model Pollux (β Gem) using an `EquitorialCoordinate`:
+
+### Sidereal Time
+
+`SiderealTime` models [sidereal time](https://squarewidget.com/astronomical-calculations-sidereal-time/) for a given moment and location. You pass in a `Moment` to initialize the object. Note that the time component should always be in UTC:
+
+```
+Moment moment = new Moment(DateTime.UtcNow);
+SiderealTime st = new(moment);
+```
+The object has two properties for obtaining Greenwich Mean Sidereal Time (GMST) and Greenwich Apparent Sidereal Time (GAST). Two methods take the observer's longitude L and return the Local Mean Sidereal Time (LMST) and the Local Apparent Sidereal Time (LAST). Last, given the observer's longitude and 
+
+```
+Moment moment = new Moment(DateTime.UtcNow);
+SiderealTime st = new(moment);
+RightAscension gmst = new(st.GreenwichMean);
+RightAscension gast = new(st.GreenwichApparent);
+```
+To get the LMST or LAST you must know the observer's longitude L:
+
+```
+DateTime datetime = new DateTime(2024, 7, 4, 21, 0, 0); // UTC
+Moment moment = new(datetime);
+SiderealTime st = new(moment);
+SexigesimalAngle L = new(77, 3, 56); // U.S. Naval Observatory
+RightAscension ra = st.ToLocalMean(L);
+
+Console.WriteLine(ra.ToString()); // displays: 13h 43m 12.822912s
+```
+Call `ToHourAngle` with both the observer's longitude L and the object's apparent equatorial right ascension α for the local mean hour angle H:
+```
+Degrees H = st.ToHourAngle(L, α);
+```
+### Coordinate Systems
+
+Three coordinate systems have been implemented: *horizontal*, *equatorial* and *ecliptical*. 
+
+Suppose we want to model Pollux (β Gem) using an `EquatorialCoordinate`:
 ```
 // Pollux (β Gem)
 RightAscension α = new(7, 45, 18.946);
 SexigesimalAngle δ = new(28, 01, 34.26);
 Degrees ε = new(23.4392911);
 
-EquitorialCoordinates eqc = new(δ, α, ε);
+EquatorialCoordinates eqc = new(δ, α, ε);
 
 Console.WriteLine(eqc.α.ToString()); // 7h 45m 18.946s
 Console.WriteLine(eqc.δ.ToString()); // +28° 1' 34.26"
 ```
-You can convert between the two coordinate systems:
+You can convert between equatorial and ecliptical coordinate systems:
 ```
-EquitorialCoordinates eqc = new(δ, α, ε);
+EquatorialCoordinates eqc = new(δ, α, ε);
 EclipticalCoordinates ec = eqc.ToΕclipticCoordinates();
 
 Console.WriteLine(ec.λ.ToDegrees().ToReducedAngle().ToString()); // 113°.21
 Console.WriteLine(ec.β.ToDegrees().ToString());                  //   6°.68
+```
+`HorizontalCoordinates` (Alt-Az) are more involved in that they require the observer's latitude and longitude, the object's equatorial coordinates, referred to a moment in time. Suppose we want to know the Altitude (h) and Azimuth (A) of Venus from the U. S. Naval Observatory at 1987 Apr 10 at 19:21 UTC. See the code sample **5-HorizontalCoordinates**. 
+```
+DateTime datetime = new(1987, 4, 10, 19, 21, 0);
+Moment moment = new Moment(datetime);
+
+// U.S. Naval Observatory
+SexigesimalAngle L = new(77, 3, 56);   // longitude
+SexigesimalAngle φ = new(38, 55, 17);  // latitude
+
+// Earth's obliquity of the ecliptic
+Earth earth = new(moment);
+SexigesimalAngle ε = earth.MeanObliquity;
+
+// Venus apparent equatorial coordinates
+RightAscension α = new(23, 9, 16.641);
+SexigesimalAngle δ = new(-6, 43, 11.61);
+EquatorialCoordinates eqc = new(δ, α, ε.ToDegrees());
+
+// construct the horizontal coordinates
+HorizontalCoordinates hc = new(moment, φ, L, eqc);
+
+Console.WriteLine("Venus Az A : " + hc.A.ToString());
+Console.WriteLine("Venus Alt h: " + hc.h.ToString());
+
+/* Displays:
+ 
+Venus Az A : 68°.03429263870905
+Venus Alt h: 15°.124262737124036
+*/
+
+```
+`HorizontalCoordinates` has a function to convert to equatorial coordinates:
+```
+EquatorialCoordinates ec = hc.ToΕquatorialCoordinates(moment, φ, L);
+
+Console.WriteLine("Venus α: " + ec.α.ToString());
+Console.WriteLine("Venus δ: " + ec.δ.ToString());
+
+/* Displays: 
+
+Venus α: 23h 9m 16.641s
+Venus δ: -6° 43' 11.61"
+*/
 ```
 
 ## Planets
@@ -219,7 +306,7 @@ True obliquity of the ecliptic: +23° 26' 36.87640248"
 */
 ```
 ### Geocentric Position Calculator
-The `GeocentricPositionCalculator` expects a `DateTime` and a planet name (target body). It returns a `GeocentricPosition` object with ecliptical and equitorial coordinates, true distance, and apparent distance (in AU).
+The `GeocentricPositionCalculator` expects a `DateTime` and a planet name (target body). It returns a `GeocentricPosition` object with ecliptical and equatorial coordinates, true distance, and apparent distance (in AU).
 ```
 DateTime datetime = new(1992, 12, 20);
 string planetName = PlanetName.Venus;
@@ -228,7 +315,7 @@ GeocentricPosition gp = GeocentricPositionCalculator.Calculate(datetime, planetN
 EclipticalCoordinates ec = gp.EclipticalCoordinates;
 Degrees longitude = ec.λ.ToDegrees().ToReducedAngle();
 Degrees latitude = ec.β.ToDegrees();
-EquitorialCoordinates eqc = gp.EquitorialCoordinates;
+EquatorialCoordinates eqc = gp.EquatorialCoordinates;
 AstronomicalUnits Δt = gp.Δt;
 AstronomicalUnits Δa = gp.Δa;
 
@@ -237,14 +324,14 @@ string d = datetime.ToShortDateString(); // culture en-US
 Console.WriteLine($"Geocentric position of {planetName} on {d}");        
 Console.WriteLine($"Ecliptical coordinates longitude {longitude} and latitude {latitude}");
 Console.WriteLine($"True distance to Earth is {Δt} (AU) and apparent distance is {Δa} (AU)");
-Console.WriteLine($"Equitorial coordinates RA {eqc.α} and declination {eqc.δ}");
+Console.WriteLine($"Equatorial coordinates RA {eqc.α} and declination {eqc.δ}");
 
 /* Displays:
  
 Geocentric position of Venus on 12/20/1992
 Ecliptical coordinates longitude 313°.0855 and latitude -2°.0847
 True distance to Earth is 0.91085 (AU) and apparent distance is 0.91095 (AU)
-Equitorial coordinates RA 21h 4m 42.46s and declination -18° 53' 12.07"
+Equatorial coordinates RA 21h 4m 42.46s and declination -18° 53' 12.07"
 */
 ```
 ### Solar Longitude Calculator

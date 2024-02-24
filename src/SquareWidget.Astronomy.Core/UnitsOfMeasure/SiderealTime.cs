@@ -57,10 +57,10 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         /// </summary>
         /// <param name="L">observer's longitude</param>
         /// <returns></returns>
-        public Degrees ToLocalMean(SexigesimalAngle L)
+        public RightAscension ToLocalMean(SexigesimalAngle L)
         {
             double result = GreenwichMean + L;
-            return new Degrees(result).ToReducedAngle();
+            return new RightAscension(result);
         }
 
         /// <summary>
@@ -68,10 +68,10 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         /// </summary>
         /// <param name="L"></param>
         /// <returns></returns>
-        public Degrees ToLocalApparent(SexigesimalAngle L)
+        public RightAscension ToLocalApparent(SexigesimalAngle L)
         {
             double result = GreenwichApparent + L;
-            return new Degrees(result).ToReducedAngle();
+            return new RightAscension(result);
         }
 
         /// <summary>
