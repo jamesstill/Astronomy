@@ -68,9 +68,9 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         public static implicit operator double(HorizontalCoordinates hc) => hc;
 
         /// <summary>
-        /// Convert the horizontal coordinates to equatorial coordinates. A part of this 
-        /// implementation was ported to C# from a Go library by Sonia Keys. See coord.go
-        /// at https://github.com/soniakeys/meeus
+        /// Convert the horizontal coordinates to equatorial coordinates. I consulted 
+        /// a Go library by Sonia Keys at https://github.com/soniakeys/meeus for the
+        /// final adjustment of the hour angle.
         /// </summary>
         /// <param name="moment"></param>
         /// <param name="φ">Observer's Latitude</param>
@@ -83,23 +83,20 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
             Radians hd = h.ToRadians();
             Radians Ad = A.ToRadians();
 
-            // declination
-            Radians d = new(Math.Asin(Math.Sin(f) * Math.Sin(hd) - Math.Cos(f) * Math.Cos(hd) * Math.Cos(Ad)));
-            
-            // hour angle
-            Radians H = new(Math.Atan2(Math.Sin(Ad), Math.Cos(Ad) * Math.Sin(f) + Math.Tan(hd) * Math.Cos(f)));
-
             SiderealTime siderealTime = new SiderealTime(moment);
             Degrees gmst = siderealTime.GreenwichMean;
+
+            Radians d = new(Math.Asin(Math.Sin(f) * Math.Sin(hd) - Math.Cos(f) * Math.Cos(hd) * Math.Cos(Ad)));
+            Radians H = new(Math.Atan2(Math.Sin(Ad), Math.Cos(Ad) * Math.Sin(f) + Math.Tan(hd) * Math.Cos(f)));
+            H = new(gmst.ToRadians() - L.ToRadians() - H);
             
-            Radians r = new(gmst.ToRadians() - L.ToRadians() - H);
-            double rad = r.ToDegrees();
-            if (rad < 0)
+            double r = H.ToDegrees();
+            if (r < 0)
             {
-                rad += 360.0;
+                r += 360.0;
             }
 
-            Degrees ra = new(rad);
+            Degrees ra = new(r);
             RightAscension α = new(ra);
             SexigesimalAngle δ = new(d.ToDegrees()); 
 

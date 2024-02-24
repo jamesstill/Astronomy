@@ -65,5 +65,42 @@ namespace SquareWidget.Astronomy.Core.Tests
             Assert.Equal(41, lst.Minutes);
             Assert.Equal(4.667898, lst.Seconds, tolerance);
         }
+
+        [Fact]
+        public void Test_Local_Sidereal_Time_2024_Jul_4()
+        {
+            double tolerance = 0.0001;
+            DateTime datetime = new(2024, 7, 4, 18, 0, 0); // UTC
+            Moment moment = new Moment(datetime);
+            SiderealTime st = new(moment);
+            SexigesimalAngle L = new(-118, 14, 38); // longitude in Los Angeles, USA
+            
+            RightAscension gmst = new(st.GreenwichMean);
+            RightAscension lst = st.ToLocalMean(L);
+
+            Assert.Equal(12, gmst.Hours);
+            Assert.Equal(52, gmst.Minutes);
+            Assert.Equal(56.791001, gmst.Seconds, tolerance);
+
+            Assert.Equal(4, lst.Hours);
+            Assert.Equal(59, lst.Minutes);
+            Assert.Equal(58.257668, lst.Seconds, tolerance);
+        }
+
+        [Fact]
+        public void Test_Local_Hour_Angle_Moon_2024_Jul_4()
+        {
+            double tolerance = 0.0001;
+            DateTime datetime = new(2024, 7, 4, 17, 0, 0); // UTC
+            Moment moment = new Moment(datetime);
+            SiderealTime st = new(moment);
+
+            SexigesimalAngle L = new(-118, 14, 38); // longitude in Los Angeles, USA
+            RightAscension α = new(5.838); // Moon
+
+            Degrees H = st.ToHourAngle(L, α);
+
+            Assert.Equal(290.601449, H, tolerance);
+        }
     }
 }

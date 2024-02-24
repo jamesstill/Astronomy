@@ -42,20 +42,29 @@ HorizontalCoordinates hc = new(moment, φ, L, eqc);
 // convert the horizontal coordinates back into equatorial coordinates
 EquatorialCoordinates ec = hc.ToΕquatorialCoordinates(moment, φ, L);
 
+// get the hour angle using SiderealTime
+SiderealTime st = new(moment);
+Degrees H = st.ToHourAngle(L, ec.α);
+
 Console.WriteLine($"Azimuth A and altitude h of Venus on {datetime.ToString("g")} UTC from the U.S. Naval Observatory");
 Console.WriteLine(string.Empty);
 Console.WriteLine("Venus α: " + α.ToString());
 Console.WriteLine("Venus δ: " + δ.ToString());
 Console.WriteLine(string.Empty);
 
-Console.WriteLine("Calculate the horizontal coordinates for Venus...");
+Console.WriteLine("Calculate the horizontal coordinates for Venus");
 Console.WriteLine(string.Empty);
 Console.WriteLine("Venus Az A : " + hc.A.ToString());
 Console.WriteLine("Venus Alt h: " + hc.h.ToString());
 Console.WriteLine(string.Empty);
 
-Console.WriteLine("Venus horizontal coordinates converted back into equatorial coordinates...");
+Console.WriteLine("Venus horizontal coordinates converted back into equatorial coordinates");
 Console.WriteLine(string.Empty);
 Console.WriteLine("Venus α: " + ec.α.ToString());
 Console.WriteLine("Venus δ: " + ec.δ.ToString());
+Console.WriteLine(string.Empty);
+
+Console.WriteLine("Hour angle (H) from U.S. Naval Observatory for Venus");
+Console.WriteLine(string.Empty);
+Console.WriteLine("H: " + H.ToString());
 
