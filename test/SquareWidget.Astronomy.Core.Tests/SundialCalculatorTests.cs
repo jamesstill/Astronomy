@@ -12,7 +12,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             SexigesimalAngle latitude = new(51, 30, 26); // London UK
             Degrees d = latitude.ToDegrees();
 
-            List<HourAngle> hourAngles = SundialCalculator.Calculate(d);
+            List<SundialAngle> hourAngles = SundialCalculator.Calculate(d);
             Assert.NotNull(hourAngles);
 
             int precision = 2;
@@ -38,7 +38,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             SexigesimalAngle latitude = new(44, 34, 11); // Corvallis OR USA
             Degrees d = latitude.ToDegrees();
 
-            List<HourAngle> hourAngles = SundialCalculator.Calculate(d);
+            List<SundialAngle> hourAngles = SundialCalculator.Calculate(d);
             Assert.NotNull(hourAngles);
 
             int precision = 2;
