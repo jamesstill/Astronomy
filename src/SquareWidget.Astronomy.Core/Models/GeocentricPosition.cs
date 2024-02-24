@@ -12,7 +12,7 @@ namespace SquareWidget.Astronomy.Core.Models
         /// <summary>
         /// Geocentric equitorial coordinates α and δ
         /// </summary>
-        public EquitorialCoordinates EquitorialCoordinates { get; set; }
+        public EquatorialCoordinates EquitorialCoordinates { get; set; }
 
         /// <summary>
         /// True distance from Earth in AU

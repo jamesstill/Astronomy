@@ -7,12 +7,12 @@ namespace SquareWidget.Astronomy.Core.Models
 	/// <summary>
 	/// Sundial hour angle for a given latitude and hour.
 	/// </summary>
-	public struct HourAngle
+	public struct SundialAngle
 	{
 		public int Hour { get; private set; }
 		public Degrees Angle { get; private set; }
 
-		public HourAngle(int hour, Degrees angle)
+		public SundialAngle(int hour, Degrees angle)
 		{
 			Hour = hour;
 			Angle = angle;

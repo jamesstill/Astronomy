@@ -1,4 +1,5 @@
 ﻿
+
 # Repository
 
 [![Build and Test](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml/badge.svg)](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml)
@@ -48,21 +49,28 @@ It is necessary to have units of measure for celestial calculations and to be ab
  - Nutation
  - Right Ascension
  - Sexagesimal Angle
+ - Sidereal Time
+ - Horizontal Coordinates
  - Ecliptical Coordinates
- - Equitorial Coordinates
+ - Equatorial Coordinates
  - Geocentric Position
 
+### Degrees and Radians
 A `Degree` struct can be instantiated in several ways.
 ```
 Degrees d = new(23.4328); // decimal degrees
 Degrees d = new(r);       // Radian struct
-Degrees d = new(a);       // Sexagesimal Angle struct (DMS)
+
+SexigesimalAngle δ = new(-6, 43, 11.61); // DMS
+Degrees d = new(δ);
 ```
-In most cases `ToString()` is overridden for display purposes. Units of measure can also be converted to other units.
+In most units of measure `ToString()` is overridden for display purposes. 
 ```
 Degrees d = new(23.4328);
 Console.WriteLine(d.ToString()); // 23°.4328
-
+```
+Units can also be converted to other units.
+```
 Radians r = d.ToRadians(); // calling method to get radians
 Radians r = new(d);        // or pass in the object itself
 
@@ -70,7 +78,7 @@ Radians r = new(0.40897951296);
 Degrees d = new(r);
 Console.WriteLine(d.ToString()); // 23°.43279
 ```
-Very large angles can be reduced to the [0, 360] range. Functions can be chained to produce the desired conversion and output.
+Very large angles for `Degrees` and `Radians` can be reduced to the [0, 360] range. Functions can be chained to produce the desired conversion and output.
 ```
 Degrees d = new(25487.1873);
 Console.WriteLine(d.ToReducedAngle().ToString()); // 287°.187300
@@ -80,6 +88,7 @@ Console.WriteLine("r0: " +  r.ToString());                    // 444.8353354
 Console.WriteLine(r.ToReducedAngle().ToString());             //   5.0123639
 Console.WriteLine(r.ToReducedAngle().ToDegrees().ToString()); // 287°.187300
 ```
+### Right Ascension
 
 A `RightAscension` handles hours, minutes and seconds (HMS).
 ```
@@ -91,6 +100,8 @@ Console.WriteLine(ra.ToString());   // 12h 37m 27s
 RightAscension ra = new(189.3625);
 Console.WriteLine(ra.ToString()); // 12h 37m 27s
 ```
+### Sexagesimal Angle
+
 A `SexagesimalAngle` represents degrees, arcminutes, and arcseconds (DMS).
 ```
 SexigesimalAngle a = new(34, 10, 49);
@@ -98,35 +109,116 @@ Console.WriteLine(a.ToString());      // +34° 10' 49"
 ```
 If the angle is negative pass the sign in with any value > 0. Do not pass in `-0` as this will fail.
 ```
-SexigesimalAngle a = new(-0, 13, 49);   // NO
-SexigesimalAngle a = new(-0, -13, 49);  // NO
+SexigesimalAngle a = new(-0, 13, 49);   // NO!
+SexigesimalAngle a = new(-0, -13, 49);  // NO!
 
-SexigesimalAngle a = new(0, -13, 49);   // YES!
-SexigesimalAngle a = new(0, 0, -49);    // YES!
+SexigesimalAngle a = new(0, -13, 49);   // YES
+SexigesimalAngle a = new(0, 0, -49);    // YES
 
 // Example Display Output
 SexigesimalAngle a = new(0, -13, 49);
 Console.WriteLine(a.ToString());        // -13' 49"
 ```
-Two coordinate systems have been implemented: *equitorial* and *ecliptical*. Suppose we want to model Pollux (β Gem) using an `EquitorialCoordinate`:
+
+### Sidereal Time
+
+`SiderealTime` models [sidereal time](https://squarewidget.com/astronomical-calculations-sidereal-time/) for a given moment and location. You pass in a `Moment` to initialize the object. Note that the time component should always be in UTC. Using local time will produce incorrect results.
+
+```
+Moment moment = new Moment(DateTime.UtcNow);
+SiderealTime st = new(moment);
+```
+Once initialized, the object has two properties for obtaining Greenwich Mean Sidereal Time (GMST) and Greenwich Apparent Sidereal Time (GAST).
+
+```
+Moment moment = new Moment(DateTime.UtcNow);
+SiderealTime st = new(moment);
+RightAscension gmst = new(st.GreenwichMean);
+RightAscension gast = new(st.GreenwichApparent);
+```
+
+To get the LMST or LAST you must know the observer's longitude L:
+
+```
+DateTime datetime = new DateTime(2024, 7, 4, 21, 0, 0); // UTC
+Moment moment = new(datetime);
+SiderealTime st = new(moment);
+SexigesimalAngle L = new(77, 3, 56); // U.S. Naval Observatory
+RightAscension ra = st.ToLocalMean(L);
+
+Console.WriteLine(ra.ToString()); // displays: 13h 43m 12.822912s
+```
+Call `ToHourAngle` with both the observer's longitude L and an object's apparent equatorial right ascension α for the local mean hour angle H:
+```
+Degrees H = st.ToHourAngle(L, α);
+```
+### Coordinate Systems
+
+Three coordinate systems have been implemented: *horizontal*, *equatorial* and *ecliptical*. 
+
+Suppose we want to model Pollux (β Gem) using an `EquatorialCoordinate`:
 ```
 // Pollux (β Gem)
 RightAscension α = new(7, 45, 18.946);
 SexigesimalAngle δ = new(28, 01, 34.26);
 Degrees ε = new(23.4392911);
 
-EquitorialCoordinates eqc = new(δ, α, ε);
+EquatorialCoordinates eqc = new(δ, α, ε);
 
 Console.WriteLine(eqc.α.ToString()); // 7h 45m 18.946s
 Console.WriteLine(eqc.δ.ToString()); // +28° 1' 34.26"
 ```
-You can convert between the two coordinate systems:
+You can convert between equatorial and ecliptical coordinate systems:
 ```
-EquitorialCoordinates eqc = new(δ, α, ε);
+EquatorialCoordinates eqc = new(δ, α, ε);
 EclipticalCoordinates ec = eqc.ToΕclipticCoordinates();
 
 Console.WriteLine(ec.λ.ToDegrees().ToReducedAngle().ToString()); // 113°.21
 Console.WriteLine(ec.β.ToDegrees().ToString());                  //   6°.68
+```
+`HorizontalCoordinates` (Alt-Az) are more involved in that they require the observer's latitude and longitude and the object's equatorial coordinates at a moment in time. Suppose we want to know the Altitude (h) and Azimuth (A) of Venus from the U. S. Naval Observatory at 1987 Apr 10 at 19:21 UTC. See the code sample **5-HorizontalCoordinates** on [GitHub](https://github.com/jamesstill/Astronomy) for a more detailed implementation. 
+```
+DateTime datetime = new(1987, 4, 10, 19, 21, 0);
+Moment moment = new Moment(datetime);
+
+// U.S. Naval Observatory
+SexigesimalAngle L = new(77, 3, 56);   // longitude
+SexigesimalAngle φ = new(38, 55, 17);  // latitude
+
+// Earth's obliquity of the ecliptic
+Earth earth = new(moment);
+SexigesimalAngle ε = earth.MeanObliquity;
+
+// Venus apparent equatorial coordinates
+RightAscension α = new(23, 9, 16.641);
+SexigesimalAngle δ = new(-6, 43, 11.61);
+EquatorialCoordinates eqc = new(δ, α, ε.ToDegrees());
+
+// construct the horizontal coordinates
+HorizontalCoordinates hc = new(moment, φ, L, eqc);
+
+Console.WriteLine("Venus Alt h: " + hc.h.ToString());
+Console.WriteLine("Venus  Az A: " + hc.A.ToString());
+
+/* Displays:
+ 
+Venus Az A : 68°.03429263870905
+Venus Alt h: 15°.124262737124036
+*/
+
+```
+`HorizontalCoordinates` has a function to convert Alt-Az to equatorial coordinates:
+```
+EquatorialCoordinates ec = hc.ToΕquatorialCoordinates(moment, φ, L);
+
+Console.WriteLine("Venus α: " + ec.α.ToString());
+Console.WriteLine("Venus δ: " + ec.δ.ToString());
+
+/* Displays: 
+
+Venus α: 23h 9m 16.641s
+Venus δ: -6° 43' 11.61"
+*/
 ```
 
 ## Planets
@@ -219,7 +311,7 @@ True obliquity of the ecliptic: +23° 26' 36.87640248"
 */
 ```
 ### Geocentric Position Calculator
-The `GeocentricPositionCalculator` expects a `DateTime` and a planet name (target body). It returns a `GeocentricPosition` object with ecliptical and equitorial coordinates, true distance, and apparent distance (in AU).
+The `GeocentricPositionCalculator` expects a `DateTime` and a planet name (target body). It returns a `GeocentricPosition` object with ecliptical and equatorial coordinates, true distance, and apparent distance (in AU).
 ```
 DateTime datetime = new(1992, 12, 20);
 string planetName = PlanetName.Venus;
@@ -228,7 +320,7 @@ GeocentricPosition gp = GeocentricPositionCalculator.Calculate(datetime, planetN
 EclipticalCoordinates ec = gp.EclipticalCoordinates;
 Degrees longitude = ec.λ.ToDegrees().ToReducedAngle();
 Degrees latitude = ec.β.ToDegrees();
-EquitorialCoordinates eqc = gp.EquitorialCoordinates;
+EquatorialCoordinates eqc = gp.EquatorialCoordinates;
 AstronomicalUnits Δt = gp.Δt;
 AstronomicalUnits Δa = gp.Δa;
 
@@ -237,14 +329,14 @@ string d = datetime.ToShortDateString(); // culture en-US
 Console.WriteLine($"Geocentric position of {planetName} on {d}");        
 Console.WriteLine($"Ecliptical coordinates longitude {longitude} and latitude {latitude}");
 Console.WriteLine($"True distance to Earth is {Δt} (AU) and apparent distance is {Δa} (AU)");
-Console.WriteLine($"Equitorial coordinates RA {eqc.α} and declination {eqc.δ}");
+Console.WriteLine($"Equatorial coordinates RA {eqc.α} and declination {eqc.δ}");
 
 /* Displays:
  
 Geocentric position of Venus on 12/20/1992
 Ecliptical coordinates longitude 313°.0855 and latitude -2°.0847
 True distance to Earth is 0.91085 (AU) and apparent distance is 0.91095 (AU)
-Equitorial coordinates RA 21h 4m 42.46s and declination -18° 53' 12.07"
+Equatorial coordinates RA 21h 4m 42.46s and declination -18° 53' 12.07"
 */
 ```
 ### Solar Longitude Calculator
@@ -282,16 +374,16 @@ The position angle P of Saturn's rings on 12/16/1992 is 6°.7404
 */
 ```
 ### Sundial Calculator
-This calculator takes any latitude and returns the hour angles for a horizontal sundial in the range 6 AM to 6 PM. Solar noon will always be 0. The calcuator expects the latitude as a `Degrees` object and returns a `List<HourAngle>` where each `HourAngle` has an hour (in 24-hour time) and a degree value. See my blog entry [Let's Make a Sundial](https://squarewidget.com/lets-make-a-sundial/) for a detailed explanation.
+This calculator takes any latitude and returns the hour angles for a horizontal sundial in the range 6 AM to 6 PM. Solar noon will always be 0. The calculator expects the latitude as a `Degrees` object and returns a `List<SundialAngle>` where each `SundialAngle` has an hour (in 24-hour time) and a degree value. See my blog entry [Let's Make a Sundial](https://squarewidget.com/lets-make-a-sundial/) for a detailed explanation.
 
 ```
 SexigesimalAngle latitude = new(51, 30, 26); // London UK
 Degrees d = latitude.ToDegrees();
 
-List<HourAngle> hourAngles = SundialCalculator.Calculate(d);
+List<SundialAngle> hourAngles = SundialCalculator.Calculate(d);
 
 Console.WriteLine($"Latitude: {d}");
-foreach (HourAngle ha in hourAngles)
+foreach (SundialAngle ha in hourAngles)
 {
     Console.WriteLine(ha.ToString());
 }
@@ -316,7 +408,7 @@ Latitude: 51°.50
 ```
 
 ### Moon Phase Calculator
-This calculator takes any `DateRange` and returns a `List<MoonPhase>` of all New, First Quarter, Full, and Last Quarter phases within that date range. The algorithm looks for the first New Moon so it will back date as needed. See my blog entry [Calculate New Moon Dates](https://squarewidget.com/calculate-new-moon-dates/) for more information.
+This calculator takes any `DateRange` and returns a `List<MoonPhase>` of all New, First Quarter, Full, and Last Quarter phases within the date range. The algorithm looks for the first New Moon so it will back date as needed. See my blog entry [Calculate New Moon Dates](https://squarewidget.com/calculate-new-moon-dates/) for more information.
 
 To call the calculator build a `DateRange` and pass it into the `MoonPhaseDatesCalculator`:
 ```
@@ -356,6 +448,7 @@ FullMoon on 04/23/2024 11:48:59.432 PM
 
 ### Solar Eclipse Calculator
 The `SolarEclipseCalculator` takes a `DateRange` and returns an `IEnumerable<SolarEclipse>` of all eclipses withing the date range. A `SolarEclipse` contains the date and time of the eclipse, the eclipse type, its magnitude, and the gamma (γ) value. Gamma can be positive or negative representing whether the axis of the shadow falls north or south of the equator, respectively.
+
 There are four eclipse types: *total*, *annular*, *partial*, and *hybrid*. See my [detailed blog post on solar eclipses](https://squarewidget.com/calculate-future-solar-eclipses/) for a description of eclipse events and these four types. 
 
 Consult the sample console app entitled **3-SolarEclipses** on [GitHub](https://github.com/jamesstill/Astronomy) for an example that exercises the calculator. 
@@ -380,7 +473,7 @@ foreach (var eclipse in eclipses)
 ```
 
 ### Positions of the Galilean Moons of Jupiter Calculator
-The `JupiterSatellitePositionCalculator` takes any `DateTime` and returns a `SatellitePositions` that describes the apparent rectangular coordinates of each of the four Galilean satellites for the date. Consult the sample console app entitled **4-JupiterSatellitePositions** on [GitHub](https://github.com/jamesstill/Astronomy) for an example that exercises the calculator.  In this code sample we are getting the satellite positions for the upcoming week. Note that the `SatellitePositions` class overrides the `ToString()` method and rounds off decimal points to two places just for display purposes.
+The `JupiterSatellitePositionCalculator` takes any `DateTime` and returns a `SatellitePositions` that describes the apparent rectangular coordinates of each of the four Galilean satellites for the date. Consult the sample console app entitled **4-JupiterSatellitePositions** on [GitHub](https://github.com/jamesstill/Astronomy) for an example that exercises the calculator.  In this code sample we are getting the satellite positions for the upcoming week. Note that the `SatellitePositions` class overrides the `ToString()` method and rounds off decimal points to two places for display purposes.
 
 ```
 using SquareWidget.Astronomy.Core.Calculators;

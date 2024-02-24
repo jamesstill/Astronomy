@@ -27,7 +27,7 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
             this.ε = ε.ToRadians();
         }
 
-        public EclipticalCoordinates(EquitorialCoordinates ec)
+        public EclipticalCoordinates(EquatorialCoordinates ec)
         {
             Radians ε = ec.ε;
             Radians δ = ec.δ.ToRadians();
@@ -40,7 +40,7 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
 
         public static implicit operator double(EclipticalCoordinates ec) => ec;
 
-        public EquitorialCoordinates ToΕquitorialCoordinates() 
+        public EquatorialCoordinates ToΕquatorialCoordinates() 
         {
             Radians l = new(Math.Atan2(Math.Sin(λ) * Math.Cos(ε) - Math.Tan(β) * Math.Sin(ε), Math.Cos(λ)));
             Radians b = new(Math.Asin(Math.Sin(β) * Math.Cos(ε) + Math.Cos(β) * Math.Sin(ε) * Math.Sin(λ)));
@@ -48,7 +48,7 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
             RightAscension α = new(l.ToDegrees().ToReducedAngle());
             SexigesimalAngle δ = new(b.ToDegrees());
 
-            return new EquitorialCoordinates(δ, α, ε);
+            return new EquatorialCoordinates(δ, α, ε.ToDegrees());
 
         }
     }
