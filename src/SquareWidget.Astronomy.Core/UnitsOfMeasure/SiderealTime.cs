@@ -60,6 +60,11 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         public RightAscension ToLocalMean(SexigesimalAngle L)
         {
             double result = GreenwichMean + L;
+            if (result < 0)
+            {
+                result += 360.0;
+            }
+
             return new RightAscension(result);
         }
 
@@ -71,6 +76,11 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         public RightAscension ToLocalApparent(SexigesimalAngle L)
         {
             double result = GreenwichApparent + L;
+            if (result < 0)
+            {
+                result += 360.0;
+            }
+
             return new RightAscension(result);
         }
 
