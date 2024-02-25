@@ -88,6 +88,38 @@ namespace SquareWidget.Astronomy.Core.Tests
         }
 
         [Fact]
+        public void Test_Local_Mean_Sidereal_Time_2024_Feb_25()
+        {
+            double tolerance = 0.0001;
+            DateTime datetime = new(2024, 2, 25, 18, 0, 0); // UTC
+            Moment moment = new Moment(datetime);
+            SiderealTime st = new(moment);
+
+            SexigesimalAngle L = new(-123, 15, 43.34);
+            RightAscension lst = st.ToLocalMean(L);
+
+            Assert.Equal(20, lst.Hours);
+            Assert.Equal(7, lst.Minutes);
+            Assert.Equal(21.703678, lst.Seconds, tolerance);
+        }
+
+        [Fact]
+        public void Test_Local_Apparent_Sidereal_Time_2024_Feb_25()
+        {
+            double tolerance = 0.0001;
+            DateTime datetime = new(2024, 2, 25, 18, 0, 0); // UTC
+            Moment moment = new Moment(datetime);
+            SiderealTime st = new(moment);
+
+            SexigesimalAngle L = new(-123, 15, 43.34);
+            RightAscension lst = st.ToLocalApparent(L);
+
+            Assert.Equal(20, lst.Hours);
+            Assert.Equal(7, lst.Minutes);
+            Assert.Equal(21.687064, lst.Seconds, tolerance);
+        }
+
+        [Fact]
         public void Test_Local_Hour_Angle_Moon_2024_Jul_4()
         {
             double tolerance = 0.0001;
