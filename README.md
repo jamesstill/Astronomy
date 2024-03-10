@@ -339,22 +339,6 @@ True distance to Earth is 0.91085 (AU) and apparent distance is 0.91095 (AU)
 Equatorial coordinates RA 21h 4m 42.46s and declination -18° 53' 12.07"
 */
 ```
-### Solar Longitude Calculator
-The `SolarLongitudeCalculator` calculates the center-to-center geocentric longitude of the Sun on a given `DateTime`. 
-```
-DateTime datetime = new(1992, 10, 13);
-Degrees p = SolarLongitudeCalculator.Calculate(datetime);
-
-string d = datetime.ToShortDateString(); // culture en-US
-
-Console.WriteLine($"Sun's geometric longitude on {d} is {p}");
-
-/* Displays:
- 
-Sun's geometric longitude on 10/13/1992 is 199°.909873
-*/
-```
-
 ### Saturn's Ring Position Angle Calculator
 Use this calculator to find the geocentric position angle of Saturn's rings, as measured from the northern celestial pole towards the East, on a given `DateTime`. The calculator expects a `GeocentricPosition` of Saturn as an argument along with a `DateTime`.
 ```
