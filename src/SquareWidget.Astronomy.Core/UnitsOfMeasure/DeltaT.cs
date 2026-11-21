@@ -6,8 +6,8 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
     public static class DeltaT
     {
         /// <summary>
-        /// Polynomial expressions from NASA to approximate value in future years at 
-        /// https://eclipse.gsfc.nasa.gov/SEhelp/deltatpoly2004.html
+        /// Polynomial expressions from NASA (Espenak and Meeus) to approximate Delta T:
+        /// https://eclipse.gsfc.nasa.gov/SEcat5/deltatpoly.html
         /// </summary>
         public static TimeSpan GetValue(int year)
         {
@@ -18,18 +18,62 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
 
             switch (year)
             {
-                case int n when n <= 2050 && n > 2005:
-                    var t = n - 2000;
+                case int n when n < -500:
+                {
+                    double u = (n - 1820) / 100.0;
+                    return TimeSpan.FromSeconds(-20 + 32 * u * u);
+                }
+
+                case int n when n >= -500 && n < 500:
+                {
+                    double u = n / 100.0;
+                    return TimeSpan.FromSeconds(
+                        10583.6
+                        - 1014.41 * u
+                        + 33.78311 * Math.Pow(u, 2)
+                        - 5.952053 * Math.Pow(u, 3)
+                        - 0.1798452 * Math.Pow(u, 4)
+                        + 0.022174192 * Math.Pow(u, 5)
+                        + 0.0090316521 * Math.Pow(u, 6));
+                }
+
+                case int n when n >= 500 && n < 1600:
+                {
+                    double u = (n - 1000) / 100.0;
+                    return TimeSpan.FromSeconds(
+                        1574.2
+                        - 556.01 * u
+                        + 71.23472 * Math.Pow(u, 2)
+                        + 0.319781 * Math.Pow(u, 3)
+                        - 0.8503463 * Math.Pow(u, 4)
+                        - 0.005050998 * Math.Pow(u, 5)
+                        + 0.0083572073 * Math.Pow(u, 6));
+                }
+
+                case int n when n >= 1600 && n < 1620:
+                {
+                    double t = n - 1600;
+                    return TimeSpan.FromSeconds(
+                        120 - 0.9808 * t - 0.01532 * t * t + Math.Pow(t, 3) / 7129.0);
+                }
+
+                case int n when n > 2005 && n <= 2050:
+                {
+                    double t = n - 2000;
                     return TimeSpan.FromSeconds(62.92 + 0.32217 * t + 0.005589 * t * t);
+                }
 
-                case int n when n <= 2150 && n > 2050:
-                    return TimeSpan.FromSeconds(-20 + 32 * Math.Pow((n - 1820) / 100, 2) - 0.5628 * (2150 - n));
+                case int n when n > 2050 && n <= 2150:
+                {
+                    double u = (n - 1820) / 100.0;
+                    return TimeSpan.FromSeconds(-20 + 32 * u * u - 0.5628 * (2150 - n));
+                }
 
-                case int n when n > 2150:
-                    return TimeSpan.FromSeconds(-20 + 32 * Math.Pow((n - 1820) / 100, 2));
-
-                default:
-                    throw new NotImplementedException("DeltaT calculated only for years greater than 1619 CE.");
+                default: // year > 2150
+                {
+                    double u = (year - 1820) / 100.0;
+                    return TimeSpan.FromSeconds(-20 + 32 * u * u);
+                }
             }
         }
 
