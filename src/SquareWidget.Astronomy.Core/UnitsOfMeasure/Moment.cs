@@ -8,7 +8,7 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
     /// A moment is a specific point in time down to the optional millisecond.
     /// Calculators assume that the passed in date is universal time.
     /// </summary>
-    public readonly struct Moment
+    public readonly struct Moment : IEquatable<Moment>
     {
         public int Year { get; }
         public int Month { get; }
@@ -32,13 +32,6 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         /// <summary>
         /// Creates a Moment with known values down to the millisecond.
         /// </summary>
-        /// <param name="year"></param>
-        /// <param name="month"></param>
-        /// <param name="day"></param>
-        /// <param name="hour"></param>
-        /// <param name="minute"></param>
-        /// <param name="second"></param>
-        /// <param name="millisecond"></param>
         public Moment(int year, int month, int day, int hour, int minute, int second = 0, int millisecond = 0)
         {
             Year = year;
@@ -51,98 +44,77 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         }
 
         /// <summary>
-        /// Creates a Moment with known values using a fraction to represent the day 
+        /// Creates a Moment with known values using a fraction to represent the day
         /// of the month as well as the hour, minute, second, and millisecond component.
         /// For example, 4.812 is the 4th day at 19:29 (7:29 PM).
         /// </summary>
-        /// <param name="year"></param>
-        /// <param name="month"></param>
-        /// <param name="day"></param>
         public Moment(int year, int month, double day)
         {
             if (double.IsNaN(day))
             {
-                throw new ArgumentException("day must be a valid value.");
+                throw new ArgumentException("day must be a valid value.", nameof(day));
             }
 
             Year = year;
             Month = month;
 
-            // leverage the C# TimeSpan struct
-            var ts = TimeSpan.FromDays(day);
+            // Round the TimeSpan directly so small milliseconds aren't inflated
+            // and 59.999s rollovers cascade cleanly into Minute/Hour/Day.
+            var ts = TimeSpan.FromSeconds(Math.Round(TimeSpan.FromDays(day).TotalSeconds));
             Day = ts.Days;
             Hour = ts.Hours;
             Minute = ts.Minutes;
-            Second = ToRoundedSeconds(ts);
+            Second = ts.Seconds;
             Millisecond = 0;
         }
 
         /// <summary>
         /// Creates a Moment with a known Julian Day (JD) value.
         /// </summary>
-        /// <param name="julianDay"></param>
         public Moment(double julianDay)
         {
             if (double.IsNaN(julianDay))
             {
-                throw new ArgumentException("julianDay must be a valid value.");
+                throw new ArgumentException("julianDay must be a valid value.", nameof(julianDay));
             }
 
-            double A;
-            double B;
-            int C;
-            double D;
-            int E;
             double jd = julianDay + 0.5;
             double Z = Math.Truncate(jd);
-            double F = jd - Math.Truncate(jd);
+            double F = jd - Z;
 
+            double A;
             if (Z < 2299161)
             {
                 A = Z;
             }
             else
             {
-                var a = (int)((Z - 1867216.25) / 36524.25);
+                int a = (int)((Z - 1867216.25) / 36524.25);
                 A = Z + 1 + a - a / 4;
             }
 
-            B = A + 1524;
-            C = (int)((B - 122.1) / 365.25);
-            D = (int)(365.25 * C);
-            E = (int)((B - D) / 30.6001);
+            double B = A + 1524;
+            int C = (int)((B - 122.1) / 365.25);
+            double D = (int)(365.25 * C);
+            int E = (int)((B - D) / 30.6001);
 
-            int Y;
-            int M;
             double day = B - D - (int)(30.6001 * E) + F;
-            switch (E)
+
+            int M = E switch
             {
-                case 14:
-                case 15:
-                    M = E - 13;
-                    break;
+                14 or 15 => E - 13,
+                _ => E - 1
+            };
 
-                default:
-                    M = E - 1;
-                    break;
-            }
-
-            switch (M)
+            int Y = M switch
             {
-                case 1:
-                case 2:
-                    Y = C - 4715;
-                    break;
-
-                default:
-                    Y = C - 4716;
-                    break;
-            }
+                1 or 2 => C - 4715,
+                _ => C - 4716
+            };
 
             Year = Y;
             Month = M;
 
-            // leverage the C# TimeSpan struct
             var ts = TimeSpan.FromDays(day);
             Day = ts.Days;
             Hour = ts.Hours;
@@ -151,37 +123,33 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
             Millisecond = ts.Milliseconds;
         }
 
-        // factory constructor
-        public static Moment GetDefaultUtcNowMoment()
-        {
-            return new Moment(DateTime.UtcNow);
-        }
+        public static Moment GetDefaultUtcNowMoment() => new Moment(DateTime.UtcNow);
 
         /// <summary>
-        /// Converts calendar date to decimal date. For example, the total solar 
-        /// eclipse of 21 May 1993 (141st day of year) would be decimal 1993.38.
+        /// Converts calendar date to decimal date.
         /// </summary>
-        /// <returns></returns>
         public double ToDecimalYear()
         {
-            DateTime d = new DateTime(Year, Month, Day);
-            double daysInYear = (DateTime.IsLeapYear(Year)) ? 366 : 365.2425;
-            var fraction = d.DayOfYear / daysInYear;
-            return d.Year + fraction;
+            DateTime d = ToDateTime();
+            double daysInYear = DateTime.IsLeapYear(Year) ? 366.0 : 365.0;
+            double elapsedDays = (d.DayOfYear - 1) + (d.TimeOfDay.TotalSeconds / 86400.0);
+            return Year + (elapsedDays / daysInYear);
         }
 
         public DateTime ToDateTime()
         {
-            return new DateTime(Year, Month, Day, Hour, Minute, Second, Millisecond);
+            if (Year < 1 || Year > 9999)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(Year),
+                    $"Year {Year} cannot be represented as a System.DateTime (valid range: 1–9999).");
+            }
+
+            return new DateTime(Year, Month, Day, Hour, Minute, Second, Millisecond, DateTimeKind.Utc);
         }
 
-        public double DayOfMonth
-        {
-            get
-            {
-                return Day + Hour / 24.0 + Minute / 1440.0 + (Second + Millisecond / 1000.0) / 86400.0;
-            }
-        }
+        public double DayOfMonth =>
+            Day + Hour / 24.0 + Minute / 1440.0 + (Second + Millisecond / 1000.0) / 86400.0;
 
         /// <summary>
         /// A Julian Day (JD) is a continuous count of days and fractions thereof
@@ -195,157 +163,96 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
                 int M = Month;
                 double B = 0; // Julian calendar default
 
-                // if the date is Jan or Feb then it is considered to be in the 
-                // 13th or 14th month of the preceding year.
-                switch (M)
+                if (M == 1 || M == 2)
                 {
-                    case 1:
-                    case 2:
-                        Y -= 1;
-                        M += 12;
-                        break;
-
-                    default:
-                        break;
+                    Y -= 1;
+                    M += 12;
                 }
 
-                if (!IsJulianDate()) // convert to Gregorian calendar
+                if (IsGregorianDate())
                 {
                     double A = Math.Floor(Y / 100.0);
-                    B = 2 - A + Math.Floor(A / 4);
+                    B = 2 - A + Math.Floor(A / 4.0);
                 }
 
-                return Math.Floor(365.25 * (Y + 4716)) + Math.Floor(30.6001 * (M + 1)) + DayOfMonth + B - 1524.5;
+                return Math.Floor(365.25 * (Y + 4716))
+                     + Math.Floor(30.6001 * (M + 1))
+                     + DayOfMonth + B - 1524.5;
             }
         }
 
         /// <summary>
-        /// Modified Julian Day which begins at Greenwich mean midnight
+        /// Modified Julian Day which begins at Greenwich mean midnight.
         /// </summary>
-        public double MDJ
-        {
-            get
-            {
-                return JDE - 2400000.5;
-            }
-        }
+        public double MJD => JDE - 2400000.5;
+
+        [Obsolete("Use MJD instead.")]
+        public double MDJ => MJD;
 
         /// <summary>
         /// Time T is measured in Julian centuries of 36525 ephemeris days from the epoch J2000.0.
         /// Note: the VSOP planetary theory uses Julian millennia (365250) instead of centuries.
         /// </summary>
-        public double T
-        {
-            get
-            {
-                return (JDE - 2451545.0) / 36525.0;
-            }
-        }
+        public double T => (JDE - 2451545.0) / 36525.0;
 
         /// <summary>
-        /// Day D is the number of days (and decimals thereof) from the epoch J2000.0
+        /// Day D is the number of days (and decimals thereof) from the epoch J2000.0.
         /// </summary>
-        public double DayD
-        {
-            get
-            {
-                return JDE - 2451545.0;
-            }
-        }
+        public double DayD => JDE - 2451545.0;
 
         /// <summary>
-        /// Pope Gregory introduced the Gregorian calendar in October 1582 when the 
-        /// calendar had drifted 10 days. Dates prior to 4 Oct 1582 are Julian dates
-        /// and dates after 15 Oct 1582 are Gregorian dates. Any date in the gap is
-        /// invalid on the Gregorian calendar.
+        /// Pope Gregory introduced the Gregorian calendar in October 1582 when the
+        /// calendar had drifted 10 days. Dates on or before 4 Oct 1582 are Julian dates
+        /// and dates on or after 15 Oct 1582 are Gregorian dates. Any date in the gap
+        /// (5–14 Oct 1582) returns false for both.
         /// </summary>
-        /// <returns></returns>
         public bool IsJulianDate()
         {
-            if (Year > 1582)
-                return false;
-
-            if (Year < 1582)
-                return true;
-
-            // year is 1582 so check month
-            if (Month > 10)
-                return false;
-
-            if (Month < 10)
-                return true;
-
-            // month is 10 so check days
-            if (Day > 14)
-                return false;
-
-            return true;
+            if (Year > 1582) return false;
+            if (Year < 1582) return true;
+            if (Month > 10) return false;
+            if (Month < 10) return true;
+            return Day <= 4;
         }
 
         public bool IsGregorianDate()
         {
-            if (Year > 1582)
-                return true;
-
-            if (Year < 1582)
-                return false;
-
-            // year is 1582 so check month
-            if (Month > 10)
-                return true;
-
-            if (Month < 10)
-                return false;
-
-            // month is 10 so check days
-            if (Day > 5)
-                return true;
-
-            return false;
+            if (Year > 1582) return true;
+            if (Year < 1582) return false;
+            if (Month > 10) return true;
+            if (Month < 10) return false;
+            return Day >= 15;
         }
 
         /// <summary>
         /// Given a TimeSpan with a Second value like 23 and a Millisecond value like 999
         /// return rounded value where 23.999 == 24 or 23.499 == 23.
         /// </summary>
-        /// <param name="ts"></param>
-        /// <returns></returns>
         public static int ToRoundedSeconds(TimeSpan ts)
         {
-            // time might be 19:26:23.999 so round up seconds
-            string value = ts.Seconds + CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSepar‌​ator + ts.Milliseconds;
-            double seconds = double.Parse(value);
-            return (int)Math.Round(seconds);
+            return (int)Math.Round(ts.Seconds + (ts.Milliseconds / 1000.0));
         }
-    
-        public override bool Equals([NotNullWhen(true)] object? obj)
-        {
-            if (!(obj is Moment)) 
-                return false;
 
-            Moment moment = (Moment)obj;
-            return moment.JDE == JDE;
-        }
+        public bool Equals(Moment other) => JDE.Equals(other.JDE);
+
+        public override bool Equals([NotNullWhen(true)] object? obj) =>
+            obj is Moment other && Equals(other);
 
         public override string ToString()
         {
-            DateTime dt = new DateTime(Year, Month, Day, Hour, Minute, Second, DateTimeKind.Utc);
-            return dt.ToString("u");
+            string yearStr = Year < 0
+                ? $"-{Math.Abs(Year):D4}"
+                : $"{Year:D4}";
+
+            return string.Create(
+                CultureInfo.InvariantCulture,
+                $"{yearStr}-{Month:D2}-{Day:D2} {Hour:D2}:{Minute:D2}:{Second:D2}.{Millisecond:D3}Z");
         }
 
-        public static bool operator ==(Moment m1, Moment m2)
-        {
-            return m1.JDE == m2.JDE;
-        }
+        public static bool operator ==(Moment m1, Moment m2) => m1.Equals(m2);
 
-        public static bool operator !=(Moment m1, Moment m2)
-        {
-            return m1.JDE != m2.JDE;
-        }
+        public static bool operator !=(Moment m1, Moment m2) => !m1.Equals(m2);
 
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+        public override int GetHashCode() => JDE.GetHashCode();
     }
 }
