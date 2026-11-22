@@ -1,4 +1,6 @@
-﻿namespace SquareWidget.Astronomy.Core.Models
+﻿using System.Globalization;
+
+namespace SquareWidget.Astronomy.Core.Models
 {
     public class Satellite
     {
@@ -8,9 +10,9 @@
 
         public override string ToString()
         {
-            string name = Name.PadLeft(8);
-            string x = X.ToString("0.00").PadLeft(6);
-            string y = Y.ToString("0.00").PadLeft(6);
+            string name = (Name ?? string.Empty).PadLeft(8);
+            string x = X.ToString("0.00", CultureInfo.InvariantCulture).PadLeft(6);
+            string y = Y.ToString("0.00", CultureInfo.InvariantCulture).PadLeft(6);
 
             return $"{name} - X: {x}   Y: {y}";
         }

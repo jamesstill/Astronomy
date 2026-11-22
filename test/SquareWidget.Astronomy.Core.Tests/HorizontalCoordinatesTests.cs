@@ -24,7 +24,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             // Venus apparent equatorial coordinates
             RightAscension α = new(23, 9, 16.641);
             SexigesimalAngle δ = new(-6, 43, 11.61);
-            EquatorialCoordinates eqc = new(δ, α, ε.ToDegrees());
+            EquitorialCoordinates eqc = new(δ, α, ε.ToDegrees());
 
             SiderealTime st = new(moment);
             RightAscension gmst = new(st.GreenwichMean);
@@ -36,7 +36,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             HorizontalCoordinates hc = new(moment, φ, L, eqc);
 
             // convert the horizontal coordinates back into equatorial coordinates
-            EquatorialCoordinates eqc0 = hc.ToEquatorialCoordinates(moment, φ, L);
+            EquitorialCoordinates eqc0 = hc.ToEquitorialCoordinates(moment, φ, L);
 
             Assert.Equal(8, gmst.Hours);
             Assert.Equal(34, gmst.Minutes);

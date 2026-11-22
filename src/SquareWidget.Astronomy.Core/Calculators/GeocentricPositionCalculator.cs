@@ -83,7 +83,7 @@ namespace SquareWidget.Astronomy.Core.Calculators
 
             // convert from ecliptical to equitorial coordinates
             EclipticalCoordinates ec = new EclipticalCoordinates(λ, β, ε);
-            EquatorialCoordinates eqc = ec.ToΕquatorialCoordinates();
+            EquitorialCoordinates eqc = ec.ToΕquitorialCoordinates();
 
             return new GeocentricPosition
             {

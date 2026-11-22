@@ -47,8 +47,8 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         /// <param name="moment">Moment in time</param>
         /// <param name="ϕ">Observer's Latitude</param>
         /// <param name="L">Observer's Longitude</param>
-        /// <param name="eqc">EquatorialCoordinates</param>
-        public HorizontalCoordinates(Moment moment, SexigesimalAngle ϕ, SexigesimalAngle L, EquatorialCoordinates eqc)
+        /// <param name="eqc">EquitorialCoordinates</param>
+        public HorizontalCoordinates(Moment moment, SexigesimalAngle ϕ, SexigesimalAngle L, EquitorialCoordinates eqc)
         {
             SiderealTime siderealTime = new SiderealTime(moment);
             Radians H = siderealTime.ToHourAngle(L, eqc.α).ToRadians();
@@ -71,8 +71,8 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         /// <param name="moment">Moment in time</param>
         /// <param name="ϕ">Observer's Latitude</param>
         /// <param name="L">Observer's Longitude</param>
-        /// <returns>EquatorialCoordinates</returns>
-        public EquatorialCoordinates ToEquatorialCoordinates(Moment moment, SexigesimalAngle ϕ, SexigesimalAngle L)
+        /// <returns>EquitorialCoordinates</returns>
+        public EquitorialCoordinates ToEquitorialCoordinates(Moment moment, SexigesimalAngle ϕ, SexigesimalAngle L)
         {
             Radians f = ϕ.ToRadians();
             Radians hd = h.ToRadians();
@@ -89,7 +89,7 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
             RightAscension α = new(ra);
             SexigesimalAngle δ = new(d.ToDegrees());
 
-            return new EquatorialCoordinates(δ, α, ε);
+            return new EquitorialCoordinates(δ, α, ε);
         }
     }
 }

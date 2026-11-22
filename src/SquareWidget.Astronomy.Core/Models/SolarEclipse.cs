@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace SquareWidget.Astronomy.Core.Models
 {
@@ -38,7 +39,7 @@ namespace SquareWidget.Astronomy.Core.Models
         public double Magnitude { get; set; }
         
         /// <summary>
-        /// Least distance from the ais of the Moon's shadow to the 
+        /// Least distance from the axis of the Moon's shadow to the 
         /// center of the Earth in units of the Earth's equatorial radius.
         /// </summary>
         public double Gamma { get; set; }
@@ -56,8 +57,8 @@ namespace SquareWidget.Astronomy.Core.Models
             return $"" +
                 $"{Date.ToString("MM-dd-yyyy")} " +
                 $"{Time.ToString("HH:mm")} UTC  " +
-                $"magnitude: {string.Format("{0,6}", magnitudeDisplay)} " +
-                $"g: {string.Format("{0,7}", gammaDisplay)}" +
+                $"magnitude: {string.Format(CultureInfo.InvariantCulture, "{0,6}", magnitudeDisplay)} " +
+                $"g: {string.Format(CultureInfo.InvariantCulture, "{0,7}", gammaDisplay)}" +
                 $"   {EclipseType}";
         }
     }

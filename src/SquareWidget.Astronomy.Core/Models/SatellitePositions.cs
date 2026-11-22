@@ -11,7 +11,7 @@ namespace SquareWidget.Astronomy.Core.Models
 
         public override string ToString()
         {
-            if (Satellites.Count == 0)
+            if (Satellites is null || Satellites.Count == 0)
             {
                 return string.Empty;
             }
