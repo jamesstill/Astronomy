@@ -3,146 +3,100 @@
 namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
 {
     /// <summary>
-    /// Struct for a sexigesimal angle in degrees, arcminutes, and arcseconds (DMS)
+    /// Struct for a sexagesimal angle in degrees, arcminutes, and arcseconds (DMS).
     /// </summary>
-    public struct SexigesimalAngle
+    public readonly struct SexigesimalAngle
     {
         private readonly double value;
-        private bool negative;
-        private int d;
-        private int m;
-        private double s;
+
+        public bool IsNegative { get; }
+        public int Degrees { get; }
+        public int Minutes { get; }
+        public double Seconds { get; }
 
         /// <summary>
-        /// Constructor for decimal degree (e.g., +58.255) build angle
+        /// Constructor for decimal degrees (e.g., +58.255).
         /// </summary>
-        /// <param name="dd"></param>
-        public SexigesimalAngle(double dd) : this()
+        public SexigesimalAngle(double dd)
         {
-            int precision = 8;
+            const int precision = 8;
             value = dd;
+            IsNegative = dd < 0;
 
-            negative = dd < 0;
             double degrees = Math.Abs(dd);
-            d = (int)Math.Floor(degrees);
+            int d = (int)Math.Floor(degrees);
 
-            degrees -= d;
-            degrees *= 60.0;
+            degrees = (degrees - d) * 60.0;
+            int m = (int)Math.Floor(degrees);
 
-            m = (int)Math.Floor(degrees);
+            degrees = (degrees - m) * 60.0;
+            double s = Math.Round(degrees, precision);
 
-            degrees -= m;
-            degrees *= 60.0;
+            // Carry over 60-second / 60-minute rollovers caused by rounding
+            if (s >= 60.0)
+            {
+                s = 0.0;
+                m += 1;
 
-            s = Math.Round(degrees, precision);
+                if (m >= 60)
+                {
+                    m = 0;
+                    d += 1;
+                }
+            }
+
+            Degrees = d;
+            Minutes = m;
+            Seconds = s;
         }
 
         /// <summary>
-        /// Constructor for degrees, minutes, seconds (DMS)
+        /// Constructor for degrees, minutes, seconds (DMS).
         /// </summary>
-        /// <param name="degrees"></param>
-        /// <param name="minutes"></param>
-        /// <param name="seconds"></param>
-        public SexigesimalAngle(int degrees, int minutes, double seconds) : this()
+        public SexigesimalAngle(int degrees, int minutes, double seconds)
         {
-            int sign = SignOf(degrees, minutes, seconds);
-            negative = sign == 0;
+            IsNegative = IsNegativeSign(degrees, minutes, seconds);
+            Degrees = Math.Abs(degrees);
+            Minutes = Math.Abs(minutes);
+            Seconds = Math.Abs(seconds);
 
-            d = Math.Abs(degrees);
-            m = Math.Abs(minutes);
-            s = Math.Abs(seconds);
-            value = ToDegrees(); // implicit conversion to decimal degrees
+            double dd = Degrees + (Minutes / 60.0) + (Seconds / 3600.0);
+            value = IsNegative ? -dd : dd;
         }
 
         public static implicit operator double(SexigesimalAngle a) => a.value;
 
         public double ToDecimalDegrees() => value;
 
-        public readonly bool IsNegative
-        {
-            get { return negative; }
-        }
+        public Radians ToRadians() => new Radians(value * (Math.PI / 180.0));
 
-        public readonly int Degrees
-        {
-            get { return d; }
-        }
+        public Degrees ToDegrees() => new Degrees(value);
 
-        public readonly int Minutes
+        public override string ToString()
         {
-            get { return m; }
-        }
+            string sign = IsNegative ? "-" : "+";
 
-        public readonly double Seconds
-        {
-            get { return s; }
-        }
-
-        public readonly Radians ToRadians()
-        {
-            double r = value * (Math.PI / 180.0);
-            return new Radians(r);
-        }
-
-        public readonly Degrees ToDegrees()
-        {
-            double dd = d + (m / 60.0) + (s / 3600.0);
-            if (IsNegative)
+            if (Degrees == 0 && Minutes == 0)
             {
-                dd = -dd;
+                return $"{sign}{Seconds}\"";
             }
 
-            return new Degrees(dd);
-        }
-
-        public override readonly string ToString()
-        {
-            string sign = negative ? "-" : "+";
-
-            if (d == 0 && m == 0)
+            if (Degrees == 0 && Minutes > 0)
             {
-                return $"{sign}{s}\"";
+                return $"{sign}{Minutes}' {Seconds}\"";
             }
 
-            if (d == 0 && m > 0)
-            {
-                return $"{sign}{m}' {s}\"";
-            }
-
-            if (d == 0 && m != 0 && s != 0)
-            {
-                return $"{sign}{s}\"";
-            }
-
-            return $"{sign}{d}° {m}' {s}\"";
+            return $"{sign}{Degrees}° {Minutes}' {Seconds}\"";
         }
 
         /// <summary>
-        /// Determine whether DMS is negative or positive by evaluating the first non-zero term.
+        /// Determines whether DMS is negative by evaluating the first non-zero term.
         /// </summary>
-        /// <param name="degrees"></param>
-        /// <param name="minutes"></param>
-        /// <param name="seconds"></param>
-        /// <returns></returns>
-        private int SignOf(double degrees, double minutes, double seconds)
+        private static bool IsNegativeSign(int degrees, int minutes, double seconds)
         {
-            double term;
-
-            if (degrees == 0.0 && minutes == 0.0 && seconds != 0.0)
-            {
-                term = seconds;
-            }
-            else if (degrees == 0.0 && minutes != 0.0)
-            {
-                term = minutes;
-            }
-            else
-            {
-                term = degrees;
-            }
-
-            return (term.GetHashCode() >> 63) + 1;
+            if (degrees != 0) return degrees < 0;
+            if (minutes != 0) return minutes < 0;
+            return seconds < 0;
         }
-
     }
 }

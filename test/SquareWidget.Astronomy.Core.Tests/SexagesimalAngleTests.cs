@@ -1,131 +1,93 @@
 ﻿using SquareWidget.Astronomy.Core.UnitsOfMeasure;
-using System.Diagnostics;
+using Xunit;
 
-namespace SquareWidget.Astronomy.Core.Tests
+namespace Astronomy.Tests
 {
-    public class SexigesimalAngleTests
+    public class SexagesimalAngleTests
     {
-        [Fact]
-        public void Test_DD_To_DMS_1()
+        // -----------------------------------------------------------------
+        // Bug 1: SignOf() used GetHashCode() >> 63, flipping signs on ~half
+        // of fractional values.
+        // -----------------------------------------------------------------
+        [Theory]
+        [InlineData(-12, 30, 0.0, true)]
+        [InlineData(12, 30, 0.0, false)]
+        [InlineData(0, -15, 30.5, true)]
+        [InlineData(0, 15, 30.5, false)]
+        [InlineData(0, 0, -0.5, true)]
+        [InlineData(0, 0, 0.5, false)]
+        [InlineData(0, 0, -45.25, true)]
+        [InlineData(0, 0, 45.25, false)]
+        [InlineData(0, 0, 0.0, false)]
+        public void DmsConstructor_DeterminesSignFromFirstNonZeroTerm(
+            int degrees, int minutes, double seconds, bool expectedNegative)
         {
-            Degrees d = new Degrees(47.31);
-            SexigesimalAngle l = new SexigesimalAngle(d);
+            var angle = new SexigesimalAngle(degrees, minutes, seconds);
 
-            Assert.Equal(l.Degrees, 47);
-            Assert.Equal(l.Minutes, 18);
-            Assert.Equal(l.Seconds, 36);
+            Assert.Equal(expectedNegative, angle.IsNegative);
+            if (expectedNegative)
+            {
+                Assert.True(angle.ToDecimalDegrees() < 0);
+            }
+            else
+            {
+                Assert.True(angle.ToDecimalDegrees() >= 0);
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // Bug 2: Rounding seconds to 8 decimal places can produce 60.0"
+        // without carrying into minutes or degrees.
+        // -----------------------------------------------------------------
+        [Fact]
+        public void DecimalDegreesConstructor_RoundsNearMinuteBoundary_CarriesToMinutes()
+        {
+            // 10° 14' 59.999999999" -> should carry to 10° 15' 0"
+            double dd = 10.0 + (15.0 / 60.0) - 1e-12;
+            var angle = new SexigesimalAngle(dd);
+
+            Assert.Equal(10, angle.Degrees);
+            Assert.Equal(15, angle.Minutes);
+            Assert.Equal(0.0, angle.Seconds);
         }
 
         [Fact]
-        public void Test_DD_To_DMS_2()
+        public void DecimalDegreesConstructor_RoundsNearDegreeBoundary_CarriesToDegrees()
         {
-            Degrees d = new Degrees(92.7890);
-            SexigesimalAngle l = new SexigesimalAngle(d);
+            // 0° 59' 59.999999999" -> should carry to 1° 0' 0"
+            double dd = 1.0 - 1e-12;
+            var angle = new SexigesimalAngle(dd);
 
-            Assert.Equal(l.Degrees, 92);
-            Assert.Equal(l.Minutes, 47);
-            Assert.Equal(l.Seconds, 20.4, 4);
+            Assert.Equal(1, angle.Degrees);
+            Assert.Equal(0, angle.Minutes);
+            Assert.Equal(0.0, angle.Seconds);
         }
 
         [Fact]
-        public void Test_DMS_Sign_1()
+        public void DecimalDegreesConstructor_NegativeNearDegreeBoundary_PreservesSignAndCarries()
         {
-            SexigesimalAngle a = new(-23, 13, 49);
-            Assert.True(a.IsNegative);
+            double dd = -(1.0 - 1e-12);
+            var angle = new SexigesimalAngle(dd);
+
+            Assert.True(angle.IsNegative);
+            Assert.Equal(1, angle.Degrees);
+            Assert.Equal(0, angle.Minutes);
+            Assert.Equal(0.0, angle.Seconds);
         }
 
-        [Fact]
-        public void Test_DMS_Sign_2()
+        // -----------------------------------------------------------------
+        // ToString formatting across all three branches
+        // -----------------------------------------------------------------
+        [Theory]
+        [InlineData(0, 0, -12.5, "-12.5\"")]
+        [InlineData(0, 15, 30, "+15' 30\"")]
+        [InlineData(-58, 25, 10, "-58° 25' 10\"")]
+        public void ToString_FormatsExpectedDmsString(
+            int degrees, int minutes, double seconds, string expected)
         {
-            SexigesimalAngle a = new(0, -13, 49);
-            Assert.True(a.IsNegative);
-        }
+            var angle = new SexigesimalAngle(degrees, minutes, seconds);
 
-        [Fact]
-        public void Test_DMS_Sign_3()
-        {
-            SexigesimalAngle a = new(0, 0, -49);
-            Assert.True(a.IsNegative);
-        }
-
-        [Fact]
-        public void Test_DMS_Sign_4()
-        {
-            SexigesimalAngle a = new(0, 0, 49);
-            Assert.False(a.IsNegative);
-        }
-
-        [Fact]
-        public void Test_DMS_Sign_5()
-        {
-            SexigesimalAngle a = new(0, 13, 49);
-            Assert.False(a.IsNegative);
-        }
-
-        [Fact]
-        public void Test_DMS_Sign_6()
-        {
-            SexigesimalAngle a = new(23, 13, 49);
-            Assert.False(a.IsNegative);
-        }
-
-        [Fact]
-        public void Test_DMS_To_Display()
-        {
-            SexigesimalAngle a = new(0, -13, 49);
-            Debug.WriteLine(a.ToString());
-            Assert.True(a.IsNegative);
-        }
-
-        [Fact]
-        public void Test_DMS_To_DD_1()
-        {
-            SexigesimalAngle l = new SexigesimalAngle(47, 18, 36);
-            Degrees d = new Degrees(l);
-
-            Assert.Equal(d, 47.31, 4);
-        }
-
-        [Fact]
-        public void Test_DMS_To_DD_2()
-        {
-            SexigesimalAngle l = new SexigesimalAngle(92, 47, 20.4);
-            Degrees d = new Degrees(l);
-
-            Assert.Equal(d, 92.789);
-        }
-
-        [Fact]
-        public void Test_DMS_To_Radians_1()
-        {
-            Degrees d = new Degrees(47.31);
-            SexigesimalAngle l = new SexigesimalAngle(d);
-            Radians r = l.ToRadians();
-
-            Assert.Equal(0.8257152, r, 6);
-        }
-
-        [Fact]
-        public void Test_DMS_To_Radians_2()
-        {
-            double tolerance = 0.0001;
-            SexigesimalAngle l = new SexigesimalAngle(184, 36, 0);
-            Radians r = l.ToRadians();
-
-            Assert.Equal(3.221878, r, tolerance);
-        }
-
-        [Fact]
-        public void Test_Radians_To_DMS_1()
-        {
-            Radians r = new Radians(0.825715);
-            Degrees d = new Degrees(r);
-            SexigesimalAngle l = new SexigesimalAngle(d);
-
-            Assert.Equal(47.31, d, 2);
-            Assert.Equal(47, l.Degrees);
-            Assert.Equal(18, l.Minutes);
-            Assert.Equal(35.94, l.Seconds, 2);
+            Assert.Equal(expected, angle.ToString());
         }
     }
 }

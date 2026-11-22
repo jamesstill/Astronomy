@@ -38,8 +38,6 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
             this.β = new Radians(Math.Asin(Math.Sin(δ) * Math.Cos(ε) - Math.Cos(δ) * Math.Sin(ε) * Math.Sin(α)));
         }
 
-        public static implicit operator double(EclipticalCoordinates ec) => ec;
-
         public EquatorialCoordinates ToΕquatorialCoordinates() 
         {
             Radians l = new(Math.Atan2(Math.Sin(λ) * Math.Cos(ε) - Math.Tan(β) * Math.Sin(ε), Math.Cos(λ)));

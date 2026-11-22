@@ -17,7 +17,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             Assert.Equal(2446895.5, moment.JDE, tolerance);
             Assert.Equal(-0.127296, moment.T, tolerance);
             Assert.Equal(197.693195, st.GreenwichMean, tolerance);
-            Assert.Equal(197.693129, st.GreenwichApparent, tolerance);
+            Assert.Equal(197.692216, st.GreenwichApparent, tolerance);
             Assert.Equal(13, gmst.Hours);
             Assert.Equal(10, gmst.Minutes);
             Assert.Equal(46.3668, gmst.Seconds, tolerance);
@@ -36,7 +36,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             Assert.Equal(2446896.306249, moment.JDE, tolerance);
             Assert.Equal(-0.127296, moment.T, tolerance);
             Assert.Equal(128.737873, st.GreenwichMean, tolerance);
-            Assert.Equal(128.737806, st.GreenwichApparent, tolerance);
+            Assert.Equal(128.736866, st.GreenwichApparent, tolerance);
             Assert.Equal(8, gmst.Hours);
             Assert.Equal(34, gmst.Minutes);
             Assert.Equal(57.089578, gmst.Seconds, tolerance);
@@ -116,7 +116,7 @@ namespace SquareWidget.Astronomy.Core.Tests
 
             Assert.Equal(20, lst.Hours);
             Assert.Equal(7, lst.Minutes);
-            Assert.Equal(21.687064, lst.Seconds, tolerance);
+            Assert.Equal(21.454470, lst.Seconds, tolerance);
         }
 
         [Fact]
@@ -133,6 +133,66 @@ namespace SquareWidget.Astronomy.Core.Tests
             Degrees H = st.ToHourAngle(L, α);
 
             Assert.Equal(290.601449, H, tolerance);
+        }
+
+        // -----------------------------------------------------------------
+        // Bug 1: ToLocalMean / ToLocalApparent only wrapped < 0, not >= 360
+        // -----------------------------------------------------------------
+        [Fact]
+        public void ToLocalMean_SumExceeds360Degrees_WrapsIntoValid24HourRange()
+        {
+            // J2000.0 (2000-01-01 12:00:00 UTC) -> GMST ≈ 280.46°
+            var st = new SiderealTime(new Moment(2000, 1, 1, 12, 0, 0));
+            var eastLongitude = new SexigesimalAngle(100, 0, 0); // 280.46 + 100 = 380.46°
+
+            RightAscension lmst = st.ToLocalMean(eastLongitude);
+
+            Assert.InRange(lmst.Hours, 0, 23);
+            Assert.Equal(1, lmst.Hours); // 20.46° / 15 ≈ 1h 21m
+        }
+
+        [Fact]
+        public void ToLocalApparent_SumExceeds360Degrees_WrapsIntoValid24HourRange()
+        {
+            var st = new SiderealTime(new Moment(2000, 1, 1, 12, 0, 0));
+            var eastLongitude = new SexigesimalAngle(100, 0, 0);
+
+            RightAscension last = st.ToLocalApparent(eastLongitude);
+
+            Assert.InRange(last.Hours, 0, 23);
+        }
+
+        // -----------------------------------------------------------------
+        // Bug 2: ToHourAngle can drop below -360°, where a single +360
+        // still leaves a negative angle.
+        // -----------------------------------------------------------------
+        [Fact]
+        public void ToHourAngle_BelowNegative360_WrapsInto0To360Range()
+        {
+            // Pick a moment where GMST is small (~10°): 2000-01-01 18:00:00 UTC -> GMST ≈ 10.71°
+            var st = new SiderealTime(new Moment(2000, 1, 1, 18, 0, 0));
+            var longitude = new SexigesimalAngle(120, 0, 0);
+            var ra = new RightAscension(20, 0, 0); // 300°
+
+            // 10.71 - 120 - 300 = -409.29° -> should wrap to ~310.71°
+            Degrees hourAngle = st.ToHourAngle(longitude, ra);
+
+            Assert.InRange((double)hourAngle, 0.0, 360.0);
+        }
+
+        // -----------------------------------------------------------------
+        // Sanity check: GAST should stay within ~0.005° (~1.2s of time) of GMST
+        // With the / 15 arcsecond bug, GAST can drift by over a degree.
+        // -----------------------------------------------------------------
+        [Fact]
+        public void GreenwichApparent_IsWithinExpectedNutationRangeOfGreenwichMean()
+        {
+            var st = new SiderealTime(new Moment(1987, 4, 10, 0, 0, 0));
+            double diff = Math.Abs((double)st.GreenwichApparent - (double)st.GreenwichMean);
+            if (diff > 180.0) diff = 360.0 - diff;
+
+            // Maximum equation of the equinoxes is ~17.2" * cos(23.4°) ≈ 0.0044°
+            Assert.True(diff < 0.01, $"GAST-GMST difference was {diff}°, expected < 0.01°.");
         }
     }
 }

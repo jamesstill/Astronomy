@@ -1,12 +1,10 @@
-﻿using SquareWidget.Astronomy.Core.Planets;
-using System;
-using System.Diagnostics;
+﻿using System;
 
 namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
 {
     /// <summary>
-    /// Struct to hold horizontal coordinates (Alt-Az) and to 
-    /// convert between horizontal and equitorial coordinates.
+    /// Struct to hold horizontal coordinates (Alt-Az) and to
+    /// convert between horizontal and equatorial coordinates.
     /// </summary>
     public readonly struct HorizontalCoordinates
     {
@@ -41,45 +39,42 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         }
 
         /// <summary>
-        /// Construct given the observer's latitude (φ), longitude (L), 
-        /// and the object's apparent equitorial coordinates following
+        /// Construct given the observer's latitude (ϕ), longitude (L),
+        /// and the object's apparent equatorial coordinates following
         /// Jean Meeus (13.5) and (13.6). See also J. L. Lawrence (4.7.3)
         /// and (4.7.4).
         /// </summary>
         /// <param name="moment">Moment in time</param>
-        /// <param name="φ">Observer's Latitude</param>
+        /// <param name="ϕ">Observer's Latitude</param>
         /// <param name="L">Observer's Longitude</param>
-        /// <param name="eqc">EquitorialCoordinates</param>
-        public HorizontalCoordinates(Moment moment, SexigesimalAngle φ, SexigesimalAngle L, EquatorialCoordinates eqc)
+        /// <param name="eqc">EquatorialCoordinates</param>
+        public HorizontalCoordinates(Moment moment, SexigesimalAngle ϕ, SexigesimalAngle L, EquatorialCoordinates eqc)
         {
             SiderealTime siderealTime = new SiderealTime(moment);
             Radians H = siderealTime.ToHourAngle(L, eqc.α).ToRadians();
-            Radians f = φ.ToRadians();
+            Radians f = ϕ.ToRadians();
             double d = eqc.δ.ToDegrees().ToRadians();
 
             Radians h = new(Math.Asin(Math.Sin(f) * Math.Sin(d) + Math.Cos(f) * Math.Cos(d) * Math.Cos(H)));
             Radians A = new(Math.Atan2(Math.Sin(H), Math.Cos(H) * Math.Sin(f) - Math.Tan(d) * Math.Cos(f)));
 
-            this.h = new Degrees(h); 
+            this.h = new Degrees(h);
             this.A = new Degrees(A);
             ε = eqc.ε.ToDegrees();
         }
 
-        public static implicit operator double(HorizontalCoordinates hc) => hc;
-
         /// <summary>
-        /// Convert the horizontal coordinates to equatorial coordinates. I consulted 
+        /// Convert the horizontal coordinates to equatorial coordinates. I consulted
         /// a Go library by Sonia Keys at https://github.com/soniakeys/meeus for the
         /// final adjustment of the hour angle.
         /// </summary>
-        /// <param name="moment"></param>
-        /// <param name="φ">Observer's Latitude</param>
+        /// <param name="moment">Moment in time</param>
+        /// <param name="ϕ">Observer's Latitude</param>
         /// <param name="L">Observer's Longitude</param>
         /// <returns>EquatorialCoordinates</returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public EquatorialCoordinates ToΕquatorialCoordinates(Moment moment, SexigesimalAngle φ, SexigesimalAngle L) 
+        public EquatorialCoordinates ToEquatorialCoordinates(Moment moment, SexigesimalAngle ϕ, SexigesimalAngle L)
         {
-            Radians f = φ.ToRadians();
+            Radians f = ϕ.ToRadians();
             Radians hd = h.ToRadians();
             Radians Ad = A.ToRadians();
 
@@ -89,16 +84,10 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
             Radians d = new(Math.Asin(Math.Sin(f) * Math.Sin(hd) - Math.Cos(f) * Math.Cos(hd) * Math.Cos(Ad)));
             Radians H = new(Math.Atan2(Math.Sin(Ad), Math.Cos(Ad) * Math.Sin(f) + Math.Tan(hd) * Math.Cos(f)));
             H = new(gmst.ToRadians() - L.ToRadians() - H);
-            
-            double r = H.ToDegrees();
-            if (r < 0)
-            {
-                r += 360.0;
-            }
 
-            Degrees ra = new(r);
+            Degrees ra = H.ToDegrees().ToReducedAngle();
             RightAscension α = new(ra);
-            SexigesimalAngle δ = new(d.ToDegrees()); 
+            SexigesimalAngle δ = new(d.ToDegrees());
 
             return new EquatorialCoordinates(δ, α, ε);
         }

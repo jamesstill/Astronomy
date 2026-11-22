@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Globalization;
 
 namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
 {
     /// <summary>
-    /// Struct to hold decimal degrees (+/-58°.4168)
+    /// Struct to hold decimal degrees (+/-58°.4168).
     /// </summary>
     public readonly struct Degrees
     {
@@ -11,7 +12,7 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
 
         public Degrees(double value)
         {
-            this.value = value;   
+            this.value = value;
         }
 
         public Degrees(Radians radians)
@@ -34,33 +35,31 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
 
         public Degrees ToReducedAngle()
         {
-            double d = this.value;
-            d %= 360;
+            double d = this.value % 360.0;
             if (d < 0)
             {
-                d += 360;
+                d += 360.0;
+            }
+
+            if (d == 0)
+            {
+                d = 0;
             }
 
             return new Degrees(d);
         }
 
         /// <summary>
-        /// Given a decimal degree like 58.4168 return as 58°.4168
+        /// Given a decimal degree like 58.4168 return as 58°.4168.
         /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
             return FormatDegree(value);
         }
 
-        /// <summary>
-        /// Given a decimal degree like 58.4168 return as 58°.4168
-        /// </summary>
-        /// <param name="d"></param>
-        /// <returns></returns>
-        private string FormatDegree(double d)
+        private static string FormatDegree(double d)
         {
-            string s = d.ToString();
+            string s = d.ToString(CultureInfo.InvariantCulture);
             int pos = s.IndexOf('.');
             if (pos == -1)
             {
