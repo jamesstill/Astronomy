@@ -67,27 +67,27 @@ namespace SquareWidget.Astronomy.Core.Planets
         }
 
         /// <summary>
-        /// Mean obliquity of the ecliptic (ε) per Meeus (22.2)
+        /// Mean obliquity of the ecliptic (ε₀) per Meeus (22.3) (Laskar's formula)
         /// </summary>
         public SexigesimalAngle MeanObliquity
         {
             get
             {
-                double T = Moment.T;
-                double U = T / 100;
-                double e0 =
-                    new SexigesimalAngle(23, 26, 21.448)
-                    - new SexigesimalAngle(0, 0, 4680.93) * U
-                    - 1.55 * Math.Pow(U, 2)
-                    + 1999.25 * Math.Pow(U, 3)
-                    - 51.38 * Math.Pow(U, 4)
-                    - 249.67 * Math.Pow(U, 5)
-                    - 39.05 * Math.Pow(U, 6)
-                    + 7.12 * Math.Pow(U, 7)
-                    + 27.87 * Math.Pow(U, 8)
-                    + 5.79 * Math.Pow(U, 9)
-                    + 2.45 * Math.Pow(U, 10);
+                double U = Moment.T / 100.0;
 
+                // Laskar's polynomial terms in arcseconds
+                double arcseconds = U * (
+                    -4680.93 + U * (
+                        -1.55 + U * (
+                            1999.25 + U * (
+                                -51.38 + U * (
+                                    -249.67 + U * (
+                                        -39.05 + U * (
+                                            7.12 + U * (
+                                                27.87 + U * (
+                                                    5.79 + U * 2.45)))))))));
+
+                double e0 = new SexigesimalAngle(23, 26, 21.448) + (arcseconds / 3600.0);
                 return new SexigesimalAngle(e0);
             }
         }

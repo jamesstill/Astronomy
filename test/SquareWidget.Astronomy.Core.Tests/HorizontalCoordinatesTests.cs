@@ -40,12 +40,12 @@ namespace SquareWidget.Astronomy.Core.Tests
 
             Assert.Equal(8, gmst.Hours);
             Assert.Equal(34, gmst.Minutes);
-            Assert.Equal(57.0896, gmst.Seconds, tolerance);
+            Assert.Equal(57.089578639717189, gmst.Seconds, tolerance);
 
             Assert.Equal(8, gast.Hours);
             Assert.Equal(34, gast.Minutes);
-            Assert.Equal(56.8477, gast.Seconds, tolerance);
-            Assert.Equal(64.352980, H, tolerance);
+            Assert.Equal(56.85307350472101, gast.Seconds, tolerance);
+            Assert.Equal(64.35298018877666, H, tolerance);
 
             Assert.Equal(15.1242627, hc.h, tolerance);
             Assert.Equal(68.0342926, hc.A, tolerance);

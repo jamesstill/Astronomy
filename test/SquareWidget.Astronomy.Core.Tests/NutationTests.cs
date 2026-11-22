@@ -14,11 +14,11 @@ namespace SquareWidget.Astronomy.Core.Tests
             Nutation n = NutationCalculator.Calculate(datetime);
 
             Assert.True(n.ΔΨ.IsNegative);
-            Assert.Equal(3.84084252, n.ΔΨ.Seconds, tolerance);
-            Assert.Equal(9.493672, n.Δε.Seconds, tolerance);
+            Assert.Equal(3.7878243500000002, n.ΔΨ.Seconds, tolerance);
+            Assert.Equal(9.44246538, n.Δε.Seconds, tolerance);
             Assert.Equal(23, n.ε.Degrees);
             Assert.Equal(26, n.ε.Minutes);
-            Assert.Equal(36.87640, n.ε.Seconds, 3);
+            Assert.Equal(36.84911283, n.ε.Seconds, 3);
         }
 
         [Fact]
@@ -29,11 +29,11 @@ namespace SquareWidget.Astronomy.Core.Tests
             Nutation n = NutationCalculator.Calculate(datetime);
 
             Assert.True(n.ΔΨ.IsNegative);
-            Assert.Equal(4.98006082, n.ΔΨ.Seconds, tolerance);
-            Assert.Equal(8.00223341, n.Δε.Seconds, tolerance);
+            Assert.Equal(4.9011384600000003, n.ΔΨ.Seconds, tolerance);
+            Assert.Equal(8.0097583199999995, n.Δε.Seconds, tolerance);
             Assert.Equal(23, n.ε.Degrees);
             Assert.Equal(26, n.ε.Minutes);
-            Assert.Equal(18.27142908, n.ε.Seconds, 3);
+            Assert.Equal(18.2113702, n.ε.Seconds, 3);
         }
     }
 }

@@ -116,7 +116,7 @@ namespace SquareWidget.Astronomy.Core.Tests
 
             Assert.Equal(20, lst.Hours);
             Assert.Equal(7, lst.Minutes);
-            Assert.Equal(21.454470, lst.Seconds, tolerance);
+            Assert.Equal(21.458453715920029, lst.Seconds, tolerance);
         }
 
         [Fact]

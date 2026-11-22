@@ -14,6 +14,11 @@ namespace SquareWidget.Astronomy.Core.Calculators
     {
         public static List<SundialAngle> Calculate(Degrees φ)
         {
+            if (φ < new Degrees(-90) || φ > new Degrees(90))
+            {
+                throw new ArgumentOutOfRangeException(nameof(φ), "Latitude must be between -90 and 90 degrees.");
+            }
+
             List<SundialAngle> list = new();
             
             double L = Math.Sin(φ * 2 * Math.PI / 360);

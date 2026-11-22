@@ -38,7 +38,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             Assert.NotNull(eclipse);
             Assert.Equal(startDate, eclipse.Date);
             Assert.Equal(EclipseType.Partial, eclipse.EclipseType);
-            Assert.Equal(0.7372, eclipse.Magnitude, tolerance);
+            Assert.Equal(0.737236, eclipse.Magnitude, tolerance);
             Assert.Equal(1.1361, eclipse.Gamma, tolerance);
         }
 
@@ -58,7 +58,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             Assert.Equal(startDate, eclipse.Date);
             Assert.Equal(EclipseType.Total, eclipse.EclipseType);
             Assert.Equal(0, eclipse.Magnitude);
-            Assert.Equal(0.0692137, eclipse.Gamma, tolerance);
+            Assert.Equal(0.069213, eclipse.Gamma, tolerance);
         }
 
         [Fact]

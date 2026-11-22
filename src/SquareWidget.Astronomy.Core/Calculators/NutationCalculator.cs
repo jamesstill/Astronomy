@@ -14,10 +14,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
     {
         public static Nutation Calculate(DateTime datetime)
         {
-            double dpsi;
-            double deps;
-            double el, elp, f, d, om, dp, de, arg, s, c;
-
             Moment moment = new(datetime);
             double t = moment.T;
 
@@ -25,51 +21,51 @@ namespace SquareWidget.Astronomy.Core.Calculators
             const double D2PI = Math.PI * 2;
             const double U2R = DAS2R / 1e4; // units of 0.1 milliarcseconds to radians
 
-            // Mean anomaly of the Sun
-            el = (1287099.804 + (1292581.224 + (-0.577 - 0.012 * t) * t) * t) * DAS2R +
-                Math.IEEERemainder(99.0 * t, 1.0) * D2PI;
-
-            // Mean anomaly of the Moon
-            elp = (485866.733 + (715922.633 + (31.310 + 0.064 * t) * t) * t) * DAS2R +
+            // Mean anomaly of the Moon (l)
+            double el = (485866.733 + (715922.633 + (31.310 + 0.064 * t) * t) * t) * DAS2R +
                 Math.IEEERemainder(1325.0 * t, 1.0) * D2PI;
 
-            // Mean longitude of Moon minus mean longitude of Moon's node.
-            f = (335778.877 + (295263.137 + (-13.257 + 0.011 * t) * t) * t) * DAS2R +
+            // Mean anomaly of the Sun (l')
+            double elp = (1287099.804 + (1292581.224 + (-0.577 - 0.012 * t) * t) * t) * DAS2R +
+                Math.IEEERemainder(99.0 * t, 1.0) * D2PI;
+
+            // Mean longitude of Moon minus mean longitude of Moon's node (F)
+            double f = (335778.877 + (295263.137 + (-13.257 + 0.011 * t) * t) * t) * DAS2R +
                 Math.IEEERemainder(1342.0 * t, 1.0) * D2PI;
 
-            // Mean elongation of Moon from Sun.
-            d = (1072261.307 + (1105601.328 + (-6.891 + 0.019 * t) * t) * t) * DAS2R +
+            // Mean elongation of Moon from Sun (D)
+            double d = (1072261.307 + (1105601.328 + (-6.891 + 0.019 * t) * t) * t) * DAS2R +
                 Math.IEEERemainder(1236.0 * t, 1.0) * D2PI;
 
             // Longitude of the mean ascending node of the lunar orbit on the ecliptic,
-            // measured from the mean equinox of date.
-            om = (450160.280 + (-482890.539 + (7.455 + 0.008 * t) * t) * t) * DAS2R +
+            // measured from the mean equinox of date (Ω)
+            double om = (450160.280 + (-482890.539 + (7.455 + 0.008 * t) * t) * t) * DAS2R +
                 Math.IEEERemainder(-5.0 * t, 1.0) * D2PI;
 
-            // initialize nutation components
-            dp = 0.0;
-            de = 0.0;
+            // Initialize nutation components
+            double dp = 0.0;
+            double de = 0.0;
 
-            // nutation series
+            // Nutation series
             foreach (var n in NutationPeriodicTerms.Values)
             {
-                // argument for current term
-                arg = n.nl * el + n.nlp * elp + n.nf * f + n.nd * d + n.nom * om;
+                // Argument for current term
+                double arg = n.nl * el + n.nlp * elp + n.nf * f + n.nd * d + n.nom * om;
 
-                // accumulate current nutation term
-                s = n.sp + n.spt * t;
-                c = n.ce + n.cet * t;
+                // Accumulate current nutation term
+                double s = n.sp + n.spt * t;
+                double c = n.ce + n.cet * t;
                 if (s != 0.0) dp += s * Math.Sin(arg);
                 if (c != 0.0) de += c * Math.Cos(arg);
             }
 
-            // convert results from units of 0.1 milliarcseconds to radians
-            dpsi = dp * U2R;
-            deps = de * U2R;
+            // Convert results from units of 0.1 milliarcseconds to radians
+            double dpsi = dp * U2R;
+            double deps = de * U2R;
 
-            // convert radians to decimal degrees
-            double longitude = dpsi * (180 / Math.PI);
-            double obliquity = deps * (180 / Math.PI);
+            // Convert radians to decimal degrees
+            double longitude = dpsi * (180.0 / Math.PI);
+            double obliquity = deps * (180.0 / Math.PI);
 
             Earth earth = new(moment);
             SexigesimalAngle e0 = earth.MeanObliquity;
@@ -92,9 +88,9 @@ namespace SquareWidget.Astronomy.Core.Calculators
     /// <summary>
     /// Port of ANSI C from IAU SOFA. See copyright and license at bottom.
     /// </summary>
-    public readonly struct NutationPeriodicTerms
+    public static class NutationPeriodicTerms
     {
-        public static readonly IList<Terms> Values = new List<Terms>
+        public static readonly IReadOnlyList<Terms> Values = Array.AsReadOnly(new Terms[]
         {
             /* 1- 10 */
             new Terms( 0,  0,  0,  0,  1, -171996.0, -174.2,  92025.0,    8.9),
@@ -167,7 +163,7 @@ namespace SquareWidget.Astronomy.Core.Calculators
             new Terms( 0,  0,  2,  2,  1,      -7.0,    0.0,      3.0,    0.0),
             new Terms( 1,  0,  2, -2,  1,       6.0,    0.0,     -3.0,    0.0),
             new Terms( 0,  0,  0, -2,  1,      -5.0,    0.0,      3.0,    0.0),
-        
+
             /* 61-70 */
             new Terms( 1, -1,  0,  0,  0,       5.0,    0.0,      0.0,    0.0),
             new Terms( 2,  0,  2,  0,  1,      -5.0,    0.0,      3.0,    0.0),
@@ -191,7 +187,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
             new Terms( 0,  0,  2,  1,  2,       2.0,    0.0,     -1.0,    0.0),
             new Terms(-1,  0,  0,  0,  2,       1.0,    0.0,     -1.0,    0.0),
             new Terms( 1,  0,  0, -4,  0,      -1.0,    0.0,      0.0,    0.0),
-
 
             /* 81-90 */
             new Terms(-2,  0,  2,  2,  2,       1.0,    0.0,     -1.0,    0.0),
@@ -224,7 +219,7 @@ namespace SquareWidget.Astronomy.Core.Calculators
             new Terms( 2,  0,  0,  2,  0,       1.0,    0.0,      0.0,    0.0),
             new Terms( 0,  0,  2,  4,  2,      -1.0,    0.0,      0.0,    0.0),
             new Terms( 0,  1,  0,  1,  0,       1.0,    0.0,      0.0,    0.0)
-        };
+        });
 
         public readonly struct Terms
         {
