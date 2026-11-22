@@ -6,7 +6,7 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Stars
 {
     public class Sun
     {
-        private Moment _moment;
+        private readonly Moment _moment;
 
         public Sun(Moment moment)
         {
@@ -22,7 +22,7 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Stars
             get
             {
                 double T = _moment.T;
-                double L = 280.46646 + (36000.76983 * T) + (0.0003032 * Math.Pow(T, 2));
+                double L = 280.46646 + (36000.76983 * T) + (0.0003032 * T * T);
                 return new Degrees(L).ToReducedAngle();
             }
         }
@@ -36,7 +36,7 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Stars
             get
             {
                 double T = _moment.T;
-                double M = 357.52911 + (35999.05029 * T) - (0.0001537 * Math.Pow(T, 2));
+                double M = 357.52911 + (35999.05029 * T) - (0.0001537 * T * T);
                 return new Degrees(M).ToReducedAngle();
             }
         }
@@ -52,12 +52,10 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Stars
                 double T = _moment.T;
                 Radians M = MeanAnomaly.ToRadians();
 
-                // Sun's equation of center
                 double C =
-                    +(1.914602 - (0.004817 * T)
-                    - (0.000014 * T * T)) * Math.Sin(M)
-                    + (0.019993 - (0.000101 * T)) * Math.Sin(M * 2)
-                    + (0.000289 * Math.Sin(M * 3));
+                    (1.914602 - (0.004817 * T) - (0.000014 * T * T)) * Math.Sin(M)
+                    + (0.019993 - (0.000101 * T)) * Math.Sin(2 * M)
+                    + 0.000289 * Math.Sin(3 * M);
 
                 return new Degrees(C);
             }
@@ -88,7 +86,7 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Stars
         }
 
         /// <summary>
-        /// Radius vector of the sun per algorithm from U.S. Naval Observatory
+        /// Approximate Sun-Earth distance in astronomical units using the USNO formula.
         /// </summary>
         public AstronomicalUnits RadiusVector
         {
@@ -101,8 +99,8 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Stars
         }
 
         /// <summary>
-        /// Return the geocentric position of the Sun referred to the mean equinox 
-        /// of the date per Jean Meeus, Astronomical Algorithms, 2nd Ed, Chap 25.
+        /// Returns the apparent geocentric position of the Sun for the date using
+        /// Jean Meeus, Astronomical Algorithms, 2nd Ed, Chapter 25.
         /// </summary>
         /// <returns></returns>
         public EquitorialCoordinates GetGeocentricPosition()
@@ -118,10 +116,10 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Stars
             Radians λ = new(L);
 
             Earth earth = new(_moment);
-            double e0 = earth.MeanObliquity.ToDecimalDegrees();
+            double meanObliquity = earth.MeanObliquity.ToDecimalDegrees();
 
-            // correction for parallax (25.8)
-            Degrees e = new(e0 + 0.00256 * Math.Cos(Ω));
+            // True obliquity of the ecliptic (Meeus 25.8)
+            Degrees e = new(meanObliquity + 0.00256 * Math.Cos(Ω));
             Radians ε = new(e);
 
             // Sun's right ascension a and declination d

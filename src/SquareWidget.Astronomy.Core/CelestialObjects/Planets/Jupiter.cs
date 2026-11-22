@@ -21,7 +21,7 @@ namespace SquareWidget.Astronomy.Core.Planets
             get
             {
                 double V = 172.74 + 0.00111588 * Moment.DayD;
-                return new Degrees(V);
+                return new Degrees(V).ToReducedAngle();
             }
         }
 

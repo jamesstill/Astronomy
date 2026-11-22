@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.8.34316.72
+# Visual Studio Version 18
+VisualStudioVersion = 18.12.12412.261 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SquareWidget.Astronomy.Core", "src\SquareWidget.Astronomy.Core\SquareWidget.Astronomy.Core.csproj", "{FCCC0FBF-D602-4C87-AE32-1C9BB0220AC4}"
 EndProject
@@ -23,6 +23,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "4-JupiterSatellitePositions", "src\4-JupiterSatellitePositions\4-JupiterSatellitePositions.csproj", "{8B1D02F4-1D1F-4077-A260-07ECCD1A962D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "5-HorizonCoordinates", "src\5-HorizonCoordinates\5-HorizonCoordinates.csproj", "{BD5C8509-929E-4B53-B4DE-6998459086A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "6-MoonPhases", "6-MoonPhases\6-MoonPhases.csproj", "{917CC287-943E-4483-B3CE-1C88EED93205}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +60,10 @@ Global
 		{BD5C8509-929E-4B53-B4DE-6998459086A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD5C8509-929E-4B53-B4DE-6998459086A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD5C8509-929E-4B53-B4DE-6998459086A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{917CC287-943E-4483-B3CE-1C88EED93205}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{917CC287-943E-4483-B3CE-1C88EED93205}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{917CC287-943E-4483-B3CE-1C88EED93205}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{917CC287-943E-4483-B3CE-1C88EED93205}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

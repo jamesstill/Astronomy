@@ -6,7 +6,8 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Moons
 {
     public class Moon
     {
-        private Moment _moment;
+        private readonly Moment _moment;
+        const double synodicMonthsPerJulianCentury = 1236.85;
 
         public Moon(Moment moment)
         {
@@ -22,7 +23,7 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Moons
             get 
             {
                 double decimalYear = (_moment.ToDecimalYear() - 2000) * 12.3685;
-                return (int)Math.Floor(decimalYear);
+                return (int)Math.Round(decimalYear);
             }
         }
 
@@ -35,7 +36,7 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Moons
             get
             {
                 int k = FirstNewMoonOfJ2000Epoch;
-                double T = _moment.T;
+                double T = k / synodicMonthsPerJulianCentury;
 
                 // Meeus (49.5)
                 double M = 201.5643 +
@@ -56,7 +57,7 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Moons
         {
             get {
                 int k = FirstNewMoonOfJ2000Epoch;
-                double T = _moment.T;
+                double T = k / synodicMonthsPerJulianCentury;
 
                 double F = 160.7108 +
                     (390.67050284 * k) -
@@ -77,7 +78,7 @@ namespace SquareWidget.Astronomy.Core.CelestialObjects.Moons
             get
             {
                 int k = FirstNewMoonOfJ2000Epoch;
-                double T = _moment.T;
+                double T = k / synodicMonthsPerJulianCentury;
 
                 double L = 124.7746 -
                     (1.56375588 * k) +

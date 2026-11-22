@@ -4,7 +4,6 @@ using System.Linq;
 using SquareWidget.Astronomy.Core.CelestialObjects.Moons;
 using SquareWidget.Astronomy.Core.CelestialObjects.Stars;
 using SquareWidget.Astronomy.Core.Models;
-using SquareWidget.Astronomy.Core.Planets;
 using SquareWidget.Astronomy.Core.UnitsOfMeasure;
 
 namespace SquareWidget.Astronomy.Core.Calculators
@@ -18,8 +17,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
     {
         public static IEnumerable<SolarEclipse> Calculate(DateRange dateRange)
         {
-            List<SolarEclipse> list = new();
-
             List<MoonPhase> moonPhases = MoonPhaseDatesCalculator.Calculate(dateRange);
 
             // select all new moon moments from the phases within the date range
@@ -34,7 +31,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
                 DateTime datetime = moment.ToDateTime();
 
                 Moon moon = new(moment);
-                Earth earth = new(moment);
                 Sun sun = new(moment);
 
                 int k = moon.FirstNewMoonOfJ2000Epoch;
@@ -47,9 +43,9 @@ namespace SquareWidget.Astronomy.Core.Calculators
                 Radians Ω = moon.LongitudeOfAscendingNode.ToRadians();
                 Radians Fp = ToFPrime(F, Ω);
                 Radians Ap = ToAPrime(k, T);
-                Radians P = ToP(E, Sm, Mm, Fp);
-                Radians Q = ToQ(E, Sm, Mm);
-                Radians W = ToW(Fp);
+                double P = ToP(E, Sm, Mm, Fp);
+                double Q = ToQ(E, Sm, Mm);
+                double W = ToW(Fp);
                 double g = ToG(P, Q, Fp, W); 
                 double u = ToU(E, Sm, Mm);
 
@@ -69,7 +65,7 @@ namespace SquareWidget.Astronomy.Core.Calculators
 
                 //  the instant when the axis of the Moon's shadow cone passes closest to Earth's center
                 DateTime timeOfGreatestEclipseUTC = TimeOfGreatestEclipse(jde, E, Mm, Sm, Fp, Ap, Ω);
-                DateOnly date = DateOnly.FromDateTime(datetime);
+                DateOnly date = DateOnly.FromDateTime(timeOfGreatestEclipseUTC);
                 TimeOnly time = TimeOnly.FromDateTime(timeOfGreatestEclipseUTC);
 
                 yield return new SolarEclipse(date, time, eclipseType, magnitude, g);
@@ -125,9 +121,9 @@ namespace SquareWidget.Astronomy.Core.Calculators
             return d.ToReducedAngle().ToRadians();
         }
 
-        private static Radians ToP(double E, Radians Sm, Radians Mm, Radians Fp)
+        private static double ToP(double E, Radians Sm, Radians Mm, Radians Fp)
         {
-            double r =
+            return
                 (0.2070 * E * Math.Sin(Sm)) +
                 (0.0024 * E * Math.Sin(Sm * 2)) -
                 (0.0392 * Math.Sin(Mm)) +
@@ -135,27 +131,22 @@ namespace SquareWidget.Astronomy.Core.Calculators
                 (0.0073 * E * Math.Sin(Mm + Sm)) +
                 (0.0067 * E * Math.Sin(Mm - Sm)) +
                 (0.0118 * Math.Sin(Fp * 2));
-
-            return new Radians(r);
         }
 
-        private static Radians ToQ(double E, Radians Sm, Radians Mm)
+        private static double ToQ(double E, Radians Sm, Radians Mm)
         {
-            double r =
+            return
                 5.2207 -
                 (0.0048 * E * Math.Cos(Sm)) +
                 (0.0020 * E * Math.Cos(Sm * 2)) -
                 (0.3299 * Math.Cos(Mm)) -
                 (0.0060 * E * Math.Cos(Mm + Sm)) +
                 (0.0041 * E * Math.Cos(Mm - Sm));
-
-            return new Radians(r);
         }
 
-        private static Radians ToW(Radians Fp)
+        private static double ToW(Radians Fp)
         {
-            double r = Math.Abs(Math.Cos(Fp));
-            return new Radians(r);
+            return Math.Abs(Math.Cos(Fp));
         }
 
         /// <summary>
@@ -167,7 +158,7 @@ namespace SquareWidget.Astronomy.Core.Calculators
         /// <param name="Fp"></param>
         /// <param name="W"></param>
         /// <returns></returns>
-        private static double ToG(Radians P, Radians Q, Radians Fp, Radians W)
+        private static double ToG(double P, double Q, Radians Fp, double W)
         {
             return (P * Math.Cos(Fp) + Q * Math.Sin(Fp)) * (1 - 0.0048 * W);
         }
@@ -236,7 +227,7 @@ namespace SquareWidget.Astronomy.Core.Calculators
 
             // convert TD to UTC by subtracting ΔT
             TimeSpan deltaT = DeltaT.GetValue(d.Year);
-            return d.AddSeconds(-deltaT.Seconds);
+            return d - deltaT; 
         }
 
         /// <summary>
