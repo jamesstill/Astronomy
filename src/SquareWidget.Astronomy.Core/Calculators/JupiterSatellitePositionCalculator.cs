@@ -6,8 +6,8 @@ using SquareWidget.Astronomy.Core.UnitsOfMeasure;
 namespace SquareWidget.Astronomy.Core.Calculators
 {
     /// <summary>
-    /// Calcuates the positions of the four Galilean moons of Jupiter on a given date
-    /// per Jean Meeus, Astronomical Algorithms, Chapters 43 and 44. 
+    /// Calculates the positions of the four Galilean moons of Jupiter on a given date
+    /// per Jean Meeus, Astronomical Algorithms, Chapters 43 and 44.
     /// See: https://squarewidget.com/astronomical-calculations-moons-of-jupiter/
     /// </summary>
     public static class JupiterSatellitePositionCalculator
@@ -15,19 +15,19 @@ namespace SquareWidget.Astronomy.Core.Calculators
         public static SatellitePositions Calculate(DateTime datetime)
         {
             TimeSpan Δt = DeltaT.GetValue(datetime.Year);
-            datetime = datetime.AddSeconds(Δt.TotalSeconds);
-            Moment moment = new Moment(datetime);
+            DateTime dynamicalTime = datetime.AddSeconds(Δt.TotalSeconds);
+            Moment moment = new(dynamicalTime);
 
             double d = moment.DayD;
 
-            Earth earth = new Earth(moment);
-            Jupiter jupiter = new Jupiter(moment);
+            Earth earth = new(moment);
+            Jupiter jupiter = new(moment);
 
             // argument for the long-period term in the motion of Jupiter
             Degrees V = jupiter.LongPeriodTerm.ToReducedAngle();
-          
+
             // difference in heliocentric longitude between Earth and Jupiter
-            double j = 66.115 + 0.9025179 * moment.DayD - 0.329 * Math.Sin(V.ToRadians());
+            double j = 66.115 + 0.9025179 * d - 0.329 * Math.Sin(V.ToRadians());
             Degrees J = new Degrees(j).ToReducedAngle();
 
             // equations of the center for Earth and Jupiter
@@ -44,7 +44,7 @@ namespace SquareWidget.Astronomy.Core.Calculators
 
             // phase angle of Jupiter; psi (ψ) always lies between -12 and +12 degrees
             Radians psi = new(Math.Asin(R / Δ * Math.Sin(K.ToRadians())));
-            Degrees ψ = new Degrees(psi);
+            Degrees ψ = new(psi);
 
             // Jupiter's heliocentric longitude referred to the equinox of 2000.0
             double lambda = 34.35 + 0.083091 * d + 0.329 * Math.Sin(V.ToRadians()) + B;
@@ -75,7 +75,7 @@ namespace SquareWidget.Astronomy.Core.Calculators
             Degrees u3 = new Degrees(du3).ToReducedAngle();
             Degrees u4 = new Degrees(du4).ToReducedAngle();
 
-            // corrections for perterbations between the satellites themselves
+            // corrections for perturbations between the satellites themselves
             Degrees G = new(331.18 + 50.310482 * t);
             Degrees H = new(87.45 + 21.569231 * t);
 
@@ -93,10 +93,11 @@ namespace SquareWidget.Astronomy.Core.Calculators
             Radians ru3 = u3.ToRadians();
             Radians ru4 = u4.ToRadians();
 
-            Radians r1 = new(5.9057 - 0.0244 * Math.Cos(2 * (ru1 - ru2)));
-            Radians r2 = new(9.3966 - 0.0882 * Math.Cos(2 * (ru2 - ru3)));
-            Radians r3 = new(14.9883 - 0.0216 * Math.Cos(G.ToRadians()));
-            Radians r4 = new(26.3627 - 0.1939 * Math.Cos(H.ToRadians()));
+            // distances from Jupiter's center in units of Jupiter's equatorial radius
+            double r1 = 5.9057 - 0.0244 * Math.Cos(2 * (ru1 - ru2));
+            double r2 = 9.3966 - 0.0882 * Math.Cos(2 * (ru2 - ru3));
+            double r3 = 14.9883 - 0.0216 * Math.Cos(G.ToRadians());
+            double r4 = 26.3627 - 0.1939 * Math.Cos(H.ToRadians());
 
             Radians Der = De.ToRadians();
 
