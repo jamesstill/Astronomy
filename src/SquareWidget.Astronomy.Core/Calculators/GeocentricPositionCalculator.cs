@@ -6,49 +6,53 @@ using System;
 namespace SquareWidget.Astronomy.Core.Calculators
 {
     /// <summary>
-    /// Calcuates the geocentric (apparent) position of a planet relative to the mean equinox of the date.
+    /// Calculates the geocentric (apparent) position of a planet relative to the true equinox of the date.
     /// </summary>
     public static class GeocentricPositionCalculator
     {
+        private const int MaxIterations = 20;
+
         /// <summary>
-        /// Calculate geocentric position of the planet in its elliptical orbit
+        /// Calculate the apparent geocentric position of a planet in its elliptical orbit.
         /// </summary>
-        /// <returns></returns>
         public static GeocentricPosition Calculate(DateTime datetime, string planetName)
         {
-            // get true distance from Earth to the planet
             Moment moment = new(datetime);
-            Planet planet = PlanetFactory.Create(planetName, moment);
 
-            Radians L = planet.SphericalCoordinates.L;
-            Radians B = planet.SphericalCoordinates.B;
-            AstronomicalUnits R = planet.SphericalCoordinates.R;
-
+            // Earth's heliocentric rectangular coordinates at time t (constant across light-time iterations)
             Earth earth = new(moment);
             Radians L0 = earth.SphericalCoordinates.L;
             Radians B0 = earth.SphericalCoordinates.B;
             AstronomicalUnits R0 = earth.SphericalCoordinates.R;
 
-            AstronomicalUnits x = new(R * Math.Cos(B) * Math.Cos(L) - R0 * Math.Cos(B0) * Math.Cos(L0));
-            AstronomicalUnits y = new(R * Math.Cos(B) * Math.Sin(L) - R0 * Math.Cos(B0) * Math.Sin(L0));
-            AstronomicalUnits z = new(R * Math.Sin(B) - R0 * Math.Sin(B0));
+            double x0 = R0 * Math.Cos(B0) * Math.Cos(L0);
+            double y0 = R0 * Math.Cos(B0) * Math.Sin(L0);
+            double z0 = R0 * Math.Sin(B0);
 
-            // true distance
+            // Planet's true position and distance at time t
+            Planet planet = PlanetFactory.Create(planetName, moment);
+            Radians L = planet.SphericalCoordinates.L;
+            Radians B = planet.SphericalCoordinates.B;
+            AstronomicalUnits R = planet.SphericalCoordinates.R;
+
+            double x = R * Math.Cos(B) * Math.Cos(L) - x0;
+            double y = R * Math.Cos(B) * Math.Sin(L) - y0;
+            double z = R * Math.Sin(B) - z0;
+
             AstronomicalUnits Δt = new(Math.Sqrt(x * x + y * y + z * z));
 
             LightTime previousLightTime = new(Δt);
-
-            // t - τ
-            double jde = moment.JDE;
-            moment = new Moment(jde - previousLightTime.TotalDays);
-
             LightTime nextLightTime = previousLightTime;
-            AstronomicalUnits Δa = new();
+            AstronomicalUnits Δa = Δt;
 
             bool areEqual = false;
+            int iterations = 0;
 
-            while (!areEqual) // solve iteratively for light time distance Δ
+            // Solve iteratively for light-time adjusted distance Δ (t - τ)
+            while (!areEqual && iterations < MaxIterations)
             {
+                iterations++;
+
                 DateTime lightTimeAdjusted = datetime.Subtract(nextLightTime);
                 moment = new Moment(lightTimeAdjusted);
 
@@ -57,11 +61,11 @@ namespace SquareWidget.Astronomy.Core.Calculators
                 B = planet.SphericalCoordinates.B;
                 R = planet.SphericalCoordinates.R;
 
-                x = new AstronomicalUnits(R * Math.Cos(B) * Math.Cos(L) - R0 * Math.Cos(B0) * Math.Cos(L0));
-                y = new AstronomicalUnits(R * Math.Cos(B) * Math.Sin(L) - R0 * Math.Cos(B0) * Math.Sin(L0));
-                z = new AstronomicalUnits(R * Math.Sin(B) - R0 * Math.Sin(B0));
-                
-                // apparent distance
+                x = R * Math.Cos(B) * Math.Cos(L) - x0;
+                y = R * Math.Cos(B) * Math.Sin(L) - y0;
+                z = R * Math.Sin(B) - z0;
+
+                // Apparent distance
                 Δa = new AstronomicalUnits(Math.Sqrt(x * x + y * y + z * z));
 
                 previousLightTime = nextLightTime;
@@ -73,16 +77,16 @@ namespace SquareWidget.Astronomy.Core.Calculators
             Radians l = new(Math.Atan2(y, x));
             Radians b = new(Math.Atan2(z, Math.Sqrt(x * x + y * y)));
 
-            // correct longitude λ for nutation
+            // Correct longitude λ for nutation
             Nutation n = NutationCalculator.Calculate(datetime);
-            l += n.ΔΨ.ToRadians();
+            l = new Radians(l + n.ΔΨ.ToRadians());
 
             Degrees λ = l.ToDegrees().ToReducedAngle();
             Degrees β = b.ToDegrees();
             Degrees ε = n.ε.ToDegrees();
 
-            // convert from ecliptical to equitorial coordinates
-            EclipticalCoordinates ec = new EclipticalCoordinates(λ, β, ε);
+            // Convert from ecliptical to equatorial coordinates
+            EclipticalCoordinates ec = new(λ, β, ε);
             EquitorialCoordinates eqc = ec.ToΕquitorialCoordinates();
 
             return new GeocentricPosition
