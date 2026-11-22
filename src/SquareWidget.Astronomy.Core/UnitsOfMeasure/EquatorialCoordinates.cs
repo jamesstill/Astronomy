@@ -6,20 +6,20 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
     /// Struct to hold equitorial right ascension (α), declination (δ), and 
     /// the Earth's obliquity of the ecliptic (ε).
     /// </summary>
-    public readonly struct EquatorialCoordinates
+    public readonly struct EquitorialCoordinates
     {
         public readonly SexigesimalAngle δ;
         public readonly RightAscension α;
         public readonly Radians ε;
 
-        public EquatorialCoordinates(SexigesimalAngle δ, RightAscension α, Degrees ε)
+        public EquitorialCoordinates(SexigesimalAngle δ, RightAscension α, Degrees ε)
         {
             this.δ = δ;
             this.α = α;
             this.ε = ε.ToRadians();
         }
 
-        public EquatorialCoordinates(EclipticalCoordinates ec)
+        public EquitorialCoordinates(EclipticalCoordinates ec)
         {
             Radians λ = ec.λ;
             Radians β = ec.β;

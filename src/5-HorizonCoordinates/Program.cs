@@ -34,13 +34,13 @@ SexigesimalAngle φ = new(38, 55, 17);  // latitude
 // Venus apparent equatorial coordinates
 RightAscension α = new(23, 9, 16.641);
 SexigesimalAngle δ = new(-6, 43, 11.61);
-EquatorialCoordinates eqc = new(δ, α, ε.ToDegrees());
+EquitorialCoordinates eqc = new(δ, α, ε.ToDegrees());
 
 // construct the horizontal coordinates
 HorizontalCoordinates hc = new(moment, φ, L, eqc);
 
 // convert the horizontal coordinates back into equatorial coordinates
-EquatorialCoordinates ec = hc.ToEquatorialCoordinates(moment, φ, L);
+EquitorialCoordinates ec = hc.ToEquitorialCoordinates(moment, φ, L);
 
 // get the hour angle using SiderealTime
 SiderealTime st = new(moment);

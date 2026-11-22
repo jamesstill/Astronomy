@@ -19,7 +19,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             SexigesimalAngle δ = new SexigesimalAngle(28, 01, 34.26);
             Degrees ε = new Degrees(23.4392911);
 
-            EquatorialCoordinates eqc = new EquatorialCoordinates(δ, α, ε);
+            EquitorialCoordinates eqc = new EquitorialCoordinates(δ, α, ε);
             EclipticalCoordinates ec = eqc.ToΕclipticCoordinates();
 
             Assert.Equal(113.215630, ec.λ.ToDegrees(), tolerance);
@@ -36,7 +36,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             Degrees ε = new Degrees(23.4392911);
 
             EclipticalCoordinates ec = new EclipticalCoordinates(λ, β, ε);
-            EquatorialCoordinates eqc = ec.ToΕquatorialCoordinates();
+            EquitorialCoordinates eqc = ec.ToΕquitorialCoordinates();
 
             RightAscension α = eqc.α;
             SexigesimalAngle δ = eqc.δ;
@@ -63,7 +63,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             Radians ε = e.ToRadians();
 
             EclipticalCoordinates ec = new EclipticalCoordinates(λ, β, ε);
-            EquatorialCoordinates eqc = ec.ToΕquatorialCoordinates();
+            EquitorialCoordinates eqc = ec.ToΕquitorialCoordinates();
 
             RightAscension α = eqc.α;
             SexigesimalAngle δ = eqc.δ;
@@ -89,7 +89,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             Moment moment = new(datetime);
             Sun sun = new(moment);
 
-            EquatorialCoordinates g = sun.GetGeocentricPosition();
+            EquitorialCoordinates g = sun.GetGeocentricPosition();
 
             Assert.Equal(13, g.α.Hours);
             Assert.Equal(13, g.α.Minutes);

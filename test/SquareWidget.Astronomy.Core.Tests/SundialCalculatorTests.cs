@@ -1,11 +1,39 @@
 ﻿using SquareWidget.Astronomy.Core.Calculators;
 using SquareWidget.Astronomy.Core.Models;
 using SquareWidget.Astronomy.Core.UnitsOfMeasure;
+using System.Globalization;
 
 namespace SquareWidget.Astronomy.Core.Tests
 {
     public class SundialCalculatorTests
     {
+        [Fact]
+        public void SundialAngle_ToString_FormatsHourZeroAsTwelveAm()
+        {
+            var midnight = new SundialAngle(0, new Degrees(0));
+            var solarNoon = new SundialAngle(12, new Degrees(0));
+
+            Assert.StartsWith("12 AM:", midnight.ToString());
+            Assert.StartsWith("12 Solar Noon:", solarNoon.ToString());
+        }
+
+        [Fact]
+        public void SundialAngle_ToString_FormatsNegativeZeroAsInvariantZero()
+        {
+            var originalCulture = CultureInfo.CurrentCulture;
+            try
+            {
+                CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("fr-FR");
+                var angle = new SundialAngle(1, new Degrees(-0.001));
+
+                Assert.Equal("1 AM: 0.00", angle.ToString());
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = originalCulture;
+            }
+        }
+
         [Fact]
         public void Test_Sundial_London_UK()
         {

@@ -19,7 +19,7 @@ namespace SquareWidget.Astronomy.Core.Tests
 
             GeocentricPosition g = GeocentricPositionCalculator.Calculate(datetime, PlanetName.Venus);
 
-            EquatorialCoordinates eqc = g.EquitorialCoordinates;
+            EquitorialCoordinates eqc = g.EquitorialCoordinates;
 
             RightAscension α = eqc.α;
             SexigesimalAngle δ = eqc.δ;

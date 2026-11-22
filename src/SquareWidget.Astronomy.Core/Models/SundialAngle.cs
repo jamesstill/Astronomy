@@ -1,5 +1,6 @@
 ﻿using SquareWidget.Astronomy.Core.UnitsOfMeasure;
 using System;
+using System.Globalization;
 
 namespace SquareWidget.Astronomy.Core.Models
 {
@@ -7,10 +8,10 @@ namespace SquareWidget.Astronomy.Core.Models
 	/// <summary>
 	/// Sundial hour angle for a given latitude and hour.
 	/// </summary>
-	public struct SundialAngle
+	public readonly struct SundialAngle
 	{
-		public int Hour { get; private set; }
-		public Degrees Angle { get; private set; }
+		public int Hour { get; }
+		public Degrees Angle { get; }
 
 		public SundialAngle(int hour, Degrees angle)
 		{
@@ -20,11 +21,16 @@ namespace SquareWidget.Astronomy.Core.Models
 
 		public override string ToString()
 		{
-			int h = (Hour > 12) ? (Hour - 12) : Hour;
+			int h = Hour == 0 ? 12 : (Hour > 12) ? (Hour - 12) : Hour;
 			string period = GetHourPeriod(Hour);
 			double truncatedAngle = Math.Truncate(Angle * 100) / 100;
-			string angle = string.Format("{0:N2}", truncatedAngle);
-            return $"{h} {period}: {angle}";
+			if (truncatedAngle == 0)
+			{
+				truncatedAngle = 0;
+			}
+
+			string angle = string.Format(CultureInfo.InvariantCulture, "{0:N2}", truncatedAngle);
+			return $"{h} {period}: {angle}";
 		}
 
         private string GetHourPeriod(int h)

@@ -45,8 +45,8 @@ namespace SquareWidget.Astronomy.Core.Calculators
             EclipticalCoordinates ec = new(λ, β, ε);
             EclipticalCoordinates ec0 = new(λ0, β0, ε);
 
-            EquatorialCoordinates eqc = ec.ToΕquatorialCoordinates();
-            EquatorialCoordinates eqc0 = ec0.ToΕquatorialCoordinates();
+            EquitorialCoordinates eqc = ec.ToΕquitorialCoordinates();
+            EquitorialCoordinates eqc0 = ec0.ToΕquitorialCoordinates();
 
             Radians α = eqc.α.ToDegrees().ToRadians();
             Radians δ = eqc.δ.ToRadians();
