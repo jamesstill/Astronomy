@@ -13,12 +13,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyVersion>2.1.0</AssemblyVersion>
+    <AssemblyVersion>3.0.0</AssemblyVersion>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Description>SquareWidget.Astronomy.Core is a code library for .NET that supports common astronomical calculations and algorithms.</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <PackageReleaseNotes>Ported to .NET 10</PackageReleaseNotes>
-    <FileVersion>2.1.0</FileVersion>
+    <FileVersion>3.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

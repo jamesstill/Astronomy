@@ -186,9 +186,6 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
         /// </summary>
         public double MJD => JDE - 2400000.5;
 
-        [Obsolete("Use MJD instead.")]
-        public double MDJ => MJD;
-
         /// <summary>
         /// Time T is measured in Julian centuries of 36525 ephemeris days from the epoch J2000.0.
         /// Note: the VSOP planetary theory uses Julian millennia (365250) instead of centuries.
