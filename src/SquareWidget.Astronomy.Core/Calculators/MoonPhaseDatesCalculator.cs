@@ -7,33 +7,34 @@ using SquareWidget.Astronomy.Core.UnitsOfMeasure;
 namespace SquareWidget.Astronomy.Core.Calculators
 {
     /// <summary>
-    /// Calcuates the instance of the new moon phases within a given date range 
+    /// Calculates the instance of the new moon phases within a given date range 
     /// following Jean Meeus, Astronomical Algorithms, Chapter 49.
     /// </summary>
     public static class MoonPhaseDatesCalculator
     {
-        const double LUNAR_CYCLE = 29.53058770576;
-
         public static List<MoonPhase> Calculate(DateRange dateRange)
         {
             List<MoonPhase> result = new();
 
-            DateTime start = dateRange.StartDate.ToDateTime(default);
-            DateTime end = dateRange.EndDate.ToDateTime(default);
+            DateTime startDt = dateRange.StartDate.ToDateTime(TimeOnly.MinValue);
+            DateTime endDt = dateRange.EndDate.ToDateTime(TimeOnly.MaxValue);
 
-            for (var d = start; d <= end; d = d.AddDays(LUNAR_CYCLE))
+            // pad by ±1 lunation so boundary phases are never missed, then filter strictly to dateRange
+            int startK = (int)Math.Floor(ToK(new Moment(startDt))) - 1;
+            int endK = (int)Math.Ceiling(ToK(new Moment(endDt))) + 1;
+
+            for (int k = startK; k <= endK; k++)
             {
-                Moment m = new Moment(d);
-                double k = ToK(m); // New Moon
-                MoonPhase phase = GetMoonPhase(k);
-                result.Add(phase);
-
-                // k + 0.25 = First Quarter; k + 0.50 = Full Moon; k + 0.75 = Last Quarter
-                for (double i = 0.25; i <= 0.75; i += 0.25)
+                for (int quarter = 0; quarter < 4; quarter++)
                 {
-                    k += i;
-                    phase = GetMoonPhase(k);
-                    result.Add(phase);
+                    double phaseK = k + (quarter * 0.25);
+                    MoonPhase phase = GetMoonPhase(phaseK);
+
+                    DateOnly phaseDate = DateOnly.FromDateTime(phase.Moment.ToDateTime());
+                    if (phaseDate >= dateRange.StartDate && phaseDate <= dateRange.EndDate)
+                    {
+                        result.Add(phase);
+                    }
                 }
             }
 
@@ -361,7 +362,6 @@ namespace SquareWidget.Astronomy.Core.Calculators
                 (0.00180 * Math.Sin(Mm - 2 * F)) -
                 (0.00070 * Math.Sin(Mm + 2 * F)) -
                 (0.00040 * Math.Sin(3 * Mm)) -
-                (0.00040 * Math.Sin(3 * Mm)) -
                 (0.00034 * E * Math.Sin(2 * Mm - Sm)) +
                 (0.00032 * E * Math.Sin(Sm + 2 * F)) +
                 (0.00032 * E * Math.Sin(Sm - 2 * F)) -
@@ -389,14 +389,16 @@ namespace SquareWidget.Astronomy.Core.Calculators
         /// <returns>correction W</returns>
         private static double ToFLQCorrection(double E, double Sm, double Mm, double F)
         {
-            double W = 0.00306 -
-                0.00038 * E * Math.Cos(Sm) +
-                0.00026 * Math.Cos(Mm) -
-                0.00002 * Math.Cos(Mm - Sm) +
-                0.00002 * Math.Cos(Mm + Sm) +
-                0.00002 * Math.Cos(F * 2);
+            double sm = new Degrees(Sm).ToRadians();
+            double mm = new Degrees(Mm).ToRadians();
+            double f = new Degrees(F).ToRadians();
 
-            return W;
+            return 0.00306
+                - (0.00038 * E * Math.Cos(sm))
+                + (0.00026 * Math.Cos(mm))
+                - (0.00002 * Math.Cos(mm - sm))
+                + (0.00002 * Math.Cos(mm + sm))
+                + (0.00002 * Math.Cos(2 * f));
         }
 
         /// <summary>
@@ -425,24 +427,16 @@ namespace SquareWidget.Astronomy.Core.Calculators
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         private static string GetPhaseName(double k)
         {
-            double trunc = Math.Abs(k - Math.Truncate(k));
-            switch (trunc)
+            double frac = Math.Round(k - Math.Floor(k), 2);
+
+            return frac switch
             {
-                case 0.0:
-                    return PhaseName.NewMoon;
-
-                case 0.25:
-                    return PhaseName.FirstQuarter;
-
-                case 0.50:
-                    return PhaseName.FullMoon;
-
-                case 0.75:
-                    return PhaseName.LastQuarter;
-
-                default:
-                    throw new ArgumentOutOfRangeException("Variable k must be a valid phase of the moon.");
-            }
+                0.00 => PhaseName.NewMoon,
+                0.25 => PhaseName.FirstQuarter,
+                0.50 => PhaseName.FullMoon,
+                0.75 => PhaseName.LastQuarter,
+                _ => throw new ArgumentOutOfRangeException(nameof(k), $"Unexpected phase fraction: {frac}")
+            };
         }
     }
 }

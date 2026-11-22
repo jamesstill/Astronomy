@@ -1,12 +1,23 @@
-﻿using SquareWidget.Astronomy.Core.Calculators;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using SquareWidget.Astronomy.Core.Calculators;
 using SquareWidget.Astronomy.Core.CelestialObjects.Moons;
 using SquareWidget.Astronomy.Core.Models;
-using System.Diagnostics;
 
 namespace SquareWidget.Astronomy.Core.Tests
 {
     public class MoonPhaseDatesCalculatorTests
     {
+        private static readonly string[] ExpectedCycle =
+        {
+            PhaseName.NewMoon,
+            PhaseName.FirstQuarter,
+            PhaseName.FullMoon,
+            PhaseName.LastQuarter
+        };
+
         [Fact]
         public void Test_First_Last_Quarter_For_Year_2044()
         {
@@ -79,6 +90,79 @@ namespace SquareWidget.Astronomy.Core.Tests
             {
                 Debug.WriteLine(item.PhaseName + " on " + item.Moment.ToDateTime().ToString("MM/dd/yyyy hh:mm:ss.fff tt"));
             }
+        }
+
+        [Fact]
+        public void Calculate_Post2000Range_ReturnsStrictChronologicalPhaseCycle()
+        {
+            DateRange range = new(new DateOnly(2025, 1, 1), new DateOnly(2025, 6, 30));
+            List<MoonPhase> phases = MoonPhaseDatesCalculator.Calculate(range);
+
+            Assert.True(phases.Count >= 24);
+
+            int startIndex = Array.IndexOf(ExpectedCycle, phases[0].PhaseName);
+            Assert.True(startIndex >= 0, $"Unexpected phase name: {phases[0].PhaseName}");
+
+            for (int i = 0; i < phases.Count; i++)
+            {
+                string expectedName = ExpectedCycle[(startIndex + i) % 4];
+                Assert.Equal(expectedName, phases[i].PhaseName);
+
+                if (i > 0)
+                {
+                    TimeSpan gap = phases[i].Moment.ToDateTime() - phases[i - 1].Moment.ToDateTime();
+                    Assert.InRange(gap.TotalDays, 6.0, 9.0);
+                }
+            }
+        }
+
+        [Fact]
+        public void Calculate_Pre2000NegativeK_PreservesFirstAndLastQuarterOrder()
+        {
+            DateRange range = new(new DateOnly(1999, 1, 1), new DateOnly(1999, 4, 30));
+            List<MoonPhase> phases = MoonPhaseDatesCalculator.Calculate(range);
+
+            Assert.True(phases.Count >= 16);
+
+            int startIndex = Array.IndexOf(ExpectedCycle, phases[0].PhaseName);
+            Assert.True(startIndex >= 0);
+
+            for (int i = 0; i < phases.Count; i++)
+            {
+                string expectedName = ExpectedCycle[(startIndex + i) % 4];
+                Assert.Equal(expectedName, phases[i].PhaseName);
+            }
+        }
+
+        [Fact]
+        public void Calculate_ShortRange_ReturnsOnlyPhasesWithinInclusiveBounds()
+        {
+            DateOnly start = new(2025, 3, 1);
+            DateOnly end = new(2025, 3, 31);
+            DateRange range = new(start, end);
+
+            List<MoonPhase> phases = MoonPhaseDatesCalculator.Calculate(range);
+
+            Assert.NotEmpty(phases);
+            Assert.All(phases, p =>
+            {
+                DateOnly d = DateOnly.FromDateTime(p.Moment.ToDateTime());
+                Assert.True(d >= start && d <= end, $"Phase date {d} fell outside [{start}, {end}]");
+            });
+        }
+
+        [Fact]
+        public void Calculate_SingleDayRangeOnKnownPhase_FindsBoundaryPhase()
+        {
+            // Meeus Ch. 49, Example 49.a: New Moon on 1977-02-18 ~03:36 UTC
+            DateOnly targetDate = new(1977, 2, 18);
+            DateRange range = new(targetDate, targetDate);
+
+            List<MoonPhase> phases = MoonPhaseDatesCalculator.Calculate(range);
+
+            MoonPhase newMoon = Assert.Single(phases);
+            Assert.Equal(PhaseName.NewMoon, newMoon.PhaseName);
+            Assert.Equal(targetDate, DateOnly.FromDateTime(newMoon.Moment.ToDateTime()));
         }
     }
 }
