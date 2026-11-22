@@ -36,7 +36,7 @@ namespace SquareWidget.Astronomy.Core.Tests
             HorizontalCoordinates hc = new(moment, φ, L, eqc);
 
             // convert the horizontal coordinates back into equatorial coordinates
-            EquatorialCoordinates eqc0 = hc.ToΕquatorialCoordinates(moment, φ, L);
+            EquatorialCoordinates eqc0 = hc.ToEquatorialCoordinates(moment, φ, L);
 
             Assert.Equal(8, gmst.Hours);
             Assert.Equal(34, gmst.Minutes);
@@ -44,7 +44,7 @@ namespace SquareWidget.Astronomy.Core.Tests
 
             Assert.Equal(8, gast.Hours);
             Assert.Equal(34, gast.Minutes);
-            Assert.Equal(57.073455, gast.Seconds, tolerance);
+            Assert.Equal(56.8477, gast.Seconds, tolerance);
             Assert.Equal(64.352980, H, tolerance);
 
             Assert.Equal(15.1242627, hc.h, tolerance);

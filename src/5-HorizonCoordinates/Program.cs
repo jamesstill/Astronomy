@@ -40,7 +40,7 @@ EquatorialCoordinates eqc = new(δ, α, ε.ToDegrees());
 HorizontalCoordinates hc = new(moment, φ, L, eqc);
 
 // convert the horizontal coordinates back into equatorial coordinates
-EquatorialCoordinates ec = hc.ToΕquatorialCoordinates(moment, φ, L);
+EquatorialCoordinates ec = hc.ToEquatorialCoordinates(moment, φ, L);
 
 // get the hour angle using SiderealTime
 SiderealTime st = new(moment);

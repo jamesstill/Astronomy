@@ -34,8 +34,6 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
             this.δ = new SexigesimalAngle(b.ToDegrees());
         }
 
-        public static implicit operator double(EquatorialCoordinates ec) => ec;
-
         public EclipticalCoordinates ToΕclipticCoordinates() 
         {
             Radians d = δ.ToRadians();
