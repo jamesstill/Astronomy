@@ -3,8 +3,8 @@
 namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
 {
     /// <summary>
-    /// Struct to hold ecliptic longitude and latitude. Latitude λ should be corrected  
-    /// to required degree range [0, 360] and longitude β should be +/- 90.
+    /// Struct to hold ecliptic longitude and latitude. Longitude λ should be corrected
+    /// to required degree range [0, 360] and latitude β should be +/- 90.
     /// </summary>
     public readonly struct EclipticalCoordinates
     {
@@ -14,7 +14,6 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
 
         public EclipticalCoordinates(Radians λ, Radians β, Radians ε)
         {
-            this.λ = λ;
             this.λ = λ;
             this.β = β;
             this.ε = ε;
