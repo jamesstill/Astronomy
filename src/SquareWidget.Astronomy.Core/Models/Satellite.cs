@@ -2,6 +2,10 @@
 
 namespace SquareWidget.Astronomy.Core.Models
 {
+    /// <summary>
+    /// A satellite is any body like a moon of Jupiter that has apparent rectangular coordinates 
+    /// in a plane perpendicular to the line of sight from the observer to the planet. 
+    /// </summary>
     public class Satellite
     {
         public string Name { get; set; } = string.Empty;
