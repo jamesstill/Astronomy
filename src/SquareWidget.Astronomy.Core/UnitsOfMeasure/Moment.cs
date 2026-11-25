@@ -148,6 +148,17 @@ namespace SquareWidget.Astronomy.Core.UnitsOfMeasure
             return new DateTime(Year, Month, Day, Hour, Minute, Second, Millisecond, DateTimeKind.Utc);
         }
 
+        /// <summary>
+        /// Converts this UTC moment to an estimated Terrestrial Time (TT) moment.
+        /// The conversion uses the library's year-based ΔT estimate (TT−UT1) and treats
+        /// UTC as UT1, so it is approximate and should not be used for precision timing.
+        /// </summary>
+        public Moment ToTerrestrialTime()
+        {
+            double deltaTDays = DeltaT.GetValue(Year).TotalDays;
+            return new Moment(JDE + deltaTDays);
+        }
+
         public double DayOfMonth =>
             Day + Hour / 24.0 + Minute / 1440.0 + (Second + Millisecond / 1000.0) / 86400.0;
 

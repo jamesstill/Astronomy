@@ -70,6 +70,18 @@ namespace SquareWidget.Astronomy.Core.Tests
             Assert.Equal(0.654770704997, moment.T, 9);
         }
 
+        [Fact]
+        public void ToTerrestrialTime_AddsTheEstimatedDeltaT()
+        {
+            Moment utc = new(2024, 1, 1, 0, 0);
+            Moment terrestrialTime = utc.ToTerrestrialTime();
+            double actualOffsetSeconds = (terrestrialTime.JDE - utc.JDE) * 86400.0;
+            double expectedOffsetSeconds = DeltaT.GetValue(utc.Year).TotalSeconds;
+
+            Assert.InRange(Math.Abs(actualOffsetSeconds - expectedOffsetSeconds), 0.0, 0.001);
+            Assert.True(terrestrialTime.JDE > utc.JDE);
+        }
+
         // -----------------------------------------------------------------
         // Bug 1a: ToRoundedSeconds drops leading zeros on milliseconds
         // 23s + 5ms (23.005s) gets concatenated as "23.5" and rounded to 24.

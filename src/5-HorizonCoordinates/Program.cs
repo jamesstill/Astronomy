@@ -39,8 +39,13 @@ EquitorialCoordinates eqc = new(δ, α, ε.ToDegrees());
 // construct the horizontal coordinates
 HorizontalCoordinates hc = new(moment, φ, L, eqc);
 
+// correct for atmospheric refraction with values for pressure and temperature
+double pressure = 1010.0;  // hPa
+double temperature = 10.0; // Celsius
+HorizontalCoordinates hca = AtmosphericRefraction.Correct(hc, pressure, temperature);
+
 // convert the horizontal coordinates back into equatorial coordinates
-EquitorialCoordinates ec = hc.ToEquitorialCoordinates(moment, φ, L);
+EquitorialCoordinates ec = hca.ToEquitorialCoordinates(moment, φ, L);
 
 // get the hour angle using SiderealTime
 SiderealTime st = new(moment);
@@ -58,6 +63,12 @@ Console.WriteLine("Venus Az A : " + hc.A.ToString());
 Console.WriteLine("Venus Alt h: " + hc.h.ToString());
 Console.WriteLine(string.Empty);
 
+Console.WriteLine("Correct the horizontal coordinates for Venus for atmospheric refraction");
+Console.WriteLine(string.Empty);
+Console.WriteLine("Venus Az A : " + hca.A.ToString());
+Console.WriteLine("Venus Alt h: " + hca.h.ToString());
+Console.WriteLine(string.Empty);
+
 Console.WriteLine("Venus horizontal coordinates converted back into equatorial coordinates");
 Console.WriteLine(string.Empty);
 Console.WriteLine("Venus α: " + ec.α.ToString());
@@ -67,4 +78,3 @@ Console.WriteLine(string.Empty);
 Console.WriteLine("Hour angle (H) from U.S. Naval Observatory for Venus");
 Console.WriteLine(string.Empty);
 Console.WriteLine("H: " + H.ToString());
-

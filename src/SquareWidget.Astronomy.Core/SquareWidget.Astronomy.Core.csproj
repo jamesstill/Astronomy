@@ -13,12 +13,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyVersion>3.0.0</AssemblyVersion>
+    <AssemblyVersion>3.1.0</AssemblyVersion>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Description>SquareWidget.Astronomy.Core is a code library for .NET that supports common astronomical calculations and algorithms.</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <PackageReleaseNotes>Ported to .NET 10</PackageReleaseNotes>
-    <FileVersion>3.0.0</FileVersion>
+    <PackageReleaseNotes>
+      Adds Bennett atmospheric refraction and topocentric parallax coordinate corrections. Adds Meeus-based lunar geocentric coordinates, distance, and horizontal parallax, with nutation-corrected apparent coordinates and approximate UTC-to-TT conversion. Updates documentation and adds tests for the new functionality. Targets .NET 10 and .NET 11.
+    </PackageReleaseNotes>
+    <FileVersion>3.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

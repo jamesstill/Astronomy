@@ -1,8 +1,4 @@
-﻿
-
-# Repository
-
-[![Build and Test](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml/badge.svg)](https://github.com/jamesstill/Astronomy/actions/workflows/ci.yml)
+﻿# Repository
 
 This repository is home to the `SquareWidget.Astronomy.Core` code library project. This project is licensed under the [GNU GPLv3](LICENSE.txt) and maintained by James Still who hosts the [SquareWidget](https://squarewidget.com) blog. 
 
@@ -10,10 +6,19 @@ This repository is home to the `SquareWidget.Astronomy.Core` code library projec
 
 SquareWidget.Astronomy.Core is a code library for .NET that supports common astronomical calculations and algorithms. 
 
+## Package Compatibility
+
+`SquareWidget.Astronomy.Core` is built for both .NET 10 and .NET 11:
+
+- `net10.0`
+- `net11.0`
+
+The library uses only the .NET base class library and has no third-party runtime dependencies.
+
 # Basic Usage
 ## Moment
 
-A `Moment` is any specific point in time down to the optional millisecond. Instantiate a `Moment` with a `DateTime`.
+A `Moment` represents UTC calendar components and exposes JDE/JD, MJD, day D, and century T values. Instantiate a `Moment` with a `DateTime` down to the optional millisecond.
 ```
 DateTime d = new(2024, 1, 31);
 Moment m = new(d);
@@ -33,27 +38,52 @@ A `Moment` will also return a JDE, a modified JDE, Day D, and the Time T from th
 ```
 Moment m = new(1957, 10, 4, 7, 29, 17);
 double jde = m.JDE;   //  2436115.8120023147
-double mdj = m.MDJ;   //  36115.31200231472
+double mjd = m.MJD;   // 36115.31200231472
 double dayd = m.DayD; // -15429.18799768528
 double t = m.T;       // -0.42242814504271814
 ```
 
+### Moment and Terrestrial Time
+
+For algorithms that evaluate orbital and lunar ephemerides in Terrestrial Time (TT), use `ToTerrestrialTime()`:
+
+```
+Moment utc = new(2024, 1, 1, 0, 0);
+Moment terrestrialTime = utc.ToTerrestrialTime();
+
+Console.WriteLine(utc.JDE);
+Console.WriteLine(terrestrialTime.JDE);
+```
+
+`ToTerrestrialTime()` adds the library's year-based `DeltaT.GetValue(utc.Year)` approximation. It treats UTC as UT1, so it is appropriate for examples and moderate-accuracy calculations but not precision timing. Sidereal time and topocentric calculations should continue to use the original UTC `Moment` for the local/Greenwich sidereal-time calculation.
+
+
 ## Units of Measure
 It is necessary to have units of measure for celestial calculations and to be able to convert easily between them. We looked at the `Moment` struct above. Others include:
 
- - Degrees
- - Radians
- - Astronomical Units
- - Delta T
- - Light Time
- - Nutation
- - Right Ascension
- - Sexagesimal Angle
- - Sidereal Time
- - Horizontal Coordinates
- - Ecliptical Coordinates
- - Equatorial Coordinates
- - Geocentric Position
+- Astronomical Units
+- Atmospheric Refraction
+- Degrees
+- Delta T
+- Ecliptical Coordinates
+- Equitorial Coordinates
+- Horizontal Coordinates
+- Light Time
+- Moment
+- Moon
+- Radians
+- Right Ascension
+- Sexagesimal Angle
+- Sidereal Time
+- TopocentricParallax
+
+### Coordinate Corrections
+
+`AtmosphericRefraction` applies Bennett's deterministic altitude correction to `HorizontalCoordinates`, preserving azimuth and obliquity. It accepts observed altitudes from -1° through 90° (correction tapers to zero near the zenith), pressure from 0 to 1200 hPa, and temperatures above absolute zero.
+
+`TopocentricParallax.ToTopocentric` adjusts geocentric `EquitorialCoordinates` using a `Moment`, observer latitude and east-positive longitude, elevation in meters, and the object's horizontal parallax. It uses Greenwich mean sidereal time and an Earth ellipsoid approximation. Both transformations return coordinate values and do not maintain observing state.
+
+Longitude is east-positive: USNO-style west longitude must be entered as `new SexigesimalAngle(-77, 3, 56)`.
 
 ### Degrees and Radians
 A `Degree` struct can be instantiated in several ways.
@@ -143,7 +173,7 @@ To get the LMST or LAST you must know the observer's longitude L:
 DateTime datetime = new DateTime(2024, 7, 4, 21, 0, 0); // UTC
 Moment moment = new(datetime);
 SiderealTime st = new(moment);
-SexigesimalAngle L = new(77, 3, 56); // U.S. Naval Observatory
+SexigesimalAngle L = new(-77, 3, 56); // U.S. Naval Observatory, east-positive longitude
 RightAscension ra = st.ToLocalMean(L);
 
 Console.WriteLine(ra.ToString()); // displays: 13h 43m 12.822912s
@@ -156,21 +186,21 @@ Degrees H = st.ToHourAngle(L, α);
 
 Three coordinate systems have been implemented: *horizontal*, *equatorial* and *ecliptical*. 
 
-Suppose we want to model Pollux (β Gem) using an `EquatorialCoordinate`:
+Suppose we want to model Pollux (β Gem) using an `EquitorialCoordinates`:
 ```
 // Pollux (β Gem)
 RightAscension α = new(7, 45, 18.946);
 SexigesimalAngle δ = new(28, 01, 34.26);
 Degrees ε = new(23.4392911);
 
-EquatorialCoordinates eqc = new(δ, α, ε);
+EquitorialCoordinates eqc = new(δ, α, ε);
 
 Console.WriteLine(eqc.α.ToString()); // 7h 45m 18.946s
 Console.WriteLine(eqc.δ.ToString()); // +28° 1' 34.26"
 ```
 You can convert between equatorial and ecliptical coordinate systems:
 ```
-EquatorialCoordinates eqc = new(δ, α, ε);
+EquitorialCoordinates eqc = new(δ, α, ε);
 EclipticalCoordinates ec = eqc.ToΕclipticCoordinates();
 
 Console.WriteLine(ec.λ.ToDegrees().ToReducedAngle().ToString()); // 113°.21
@@ -182,7 +212,7 @@ DateTime datetime = new(1987, 4, 10, 19, 21, 0);
 Moment moment = new Moment(datetime);
 
 // U.S. Naval Observatory
-SexigesimalAngle L = new(77, 3, 56);   // longitude
+SexigesimalAngle L = new(-77, 3, 56);  // east-positive longitude; -77° west
 SexigesimalAngle φ = new(38, 55, 17);  // latitude
 
 // Earth's obliquity of the ecliptic
@@ -192,24 +222,29 @@ SexigesimalAngle ε = earth.MeanObliquity;
 // Venus apparent equatorial coordinates
 RightAscension α = new(23, 9, 16.641);
 SexigesimalAngle δ = new(-6, 43, 11.61);
-EquatorialCoordinates eqc = new(δ, α, ε.ToDegrees());
+EquitorialCoordinates eqc = new(δ, α, ε.ToDegrees());
 
 // construct the horizontal coordinates
 HorizontalCoordinates hc = new(moment, φ, L, eqc);
 
-Console.WriteLine("Venus Alt h: " + hc.h.ToString());
-Console.WriteLine("Venus  Az A: " + hc.A.ToString());
+// correct for atmospheric refraction with values for pressure and temperature
+double pressure = 1010.0;  // hPa
+double temperature = 10.0; // Celsius
+HorizontalCoordinates hca = AtmosphericRefraction.Correct(hc, pressure, temperature);
+
+Console.WriteLine("Venus Alt h: " + hca.h.ToString());
+Console.WriteLine("Venus  Az A: " + hca.A.ToString());
 
 /* Displays:
- 
+
 Venus Az A : 68°.03429263870905
-Venus Alt h: 15°.124262737124036
+Venus Alt h: 15°.185013554411922
 */
 
 ```
 `HorizontalCoordinates` has a function to convert Alt-Az to equatorial coordinates:
 ```
-EquatorialCoordinates ec = hc.ToΕquatorialCoordinates(moment, φ, L);
+EquitorialCoordinates ec = hc.ToEquitorialCoordinates(moment, φ, L);
 
 Console.WriteLine("Venus α: " + ec.α.ToString());
 Console.WriteLine("Venus δ: " + ec.δ.ToString());
@@ -299,14 +334,14 @@ string ε = n.ε.ToString();
 
 Console.WriteLine($"Nutation on {d}");
 Console.WriteLine($"Nutation in longitude: {ΔΨ}");
-Console.WriteLine($"Nutation in latitude: {Δε}");
+Console.WriteLine($"Nutation in obliquity: {Δε}");
 Console.WriteLine($"True obliquity of the ecliptic: {ε}");
 
 /* Displays:
  
 Nutation on 4/10/1987
 Nutation in longitude: -3.84084252"
-Nutation in latitude: +9.4936372"
+Nutation in obliquity: +9.4936372"
 True obliquity of the ecliptic: +23° 26' 36.87640248"
 */
 ```
@@ -320,7 +355,7 @@ GeocentricPosition gp = GeocentricPositionCalculator.Calculate(datetime, planetN
 EclipticalCoordinates ec = gp.EclipticalCoordinates;
 Degrees longitude = ec.λ.ToDegrees().ToReducedAngle();
 Degrees latitude = ec.β.ToDegrees();
-EquatorialCoordinates eqc = gp.EquatorialCoordinates;
+EquitorialCoordinates eqc = gp.EquitorialCoordinates;
 AstronomicalUnits Δt = gp.Δt;
 AstronomicalUnits Δa = gp.Δa;
 
@@ -329,14 +364,14 @@ string d = datetime.ToShortDateString(); // culture en-US
 Console.WriteLine($"Geocentric position of {planetName} on {d}");        
 Console.WriteLine($"Ecliptical coordinates longitude {longitude} and latitude {latitude}");
 Console.WriteLine($"True distance to Earth is {Δt} (AU) and apparent distance is {Δa} (AU)");
-Console.WriteLine($"Equatorial coordinates RA {eqc.α} and declination {eqc.δ}");
+Console.WriteLine($"Equitorial coordinates RA {eqc.α} and declination {eqc.δ}");
 
 /* Displays:
  
 Geocentric position of Venus on 12/20/1992
 Ecliptical coordinates longitude 313°.0855 and latitude -2°.0847
 True distance to Earth is 0.91085 (AU) and apparent distance is 0.91095 (AU)
-Equatorial coordinates RA 21h 4m 42.46s and declination -18° 53' 12.07"
+Equitorial coordinates RA 21h 4m 42.46s and declination -18° 53' 12.07"
 */
 ```
 ### Saturn's Ring Position Angle Calculator
@@ -391,6 +426,43 @@ Latitude: 51°.50
 */
 ```
 
+### Moon Geocentric Position
+
+Use `Moon` with a UTC `Moment` to calculate the Moon's geocentric position and horizontal parallax. The Moon implementation follows the periodic series in Meeus, Chapter 47, and returns values for both mean and apparent equinoxes:
+
+```
+using SquareWidget.Astronomy.Core.CelestialObjects.Moons;
+
+Moment moment = new(2024, 1, 1, 0, 0);
+Moon moon = new(moment);
+
+EclipticalCoordinates meanEcliptic = moon.GeocentricEclipticalCoordinates;
+EquitorialCoordinates meanEquatorial = moon.GeocentricEquitorialCoordinates;
+EquitorialCoordinates apparentEquatorial = moon.ApparentEquitorialCoordinates;
+
+Console.WriteLine($"Distance: {moon.GeocentricDistanceKilometers:F1} km");
+Console.WriteLine($"Horizontal parallax: {moon.HorizontalParallax}");
+Console.WriteLine($"Mean RA/Dec: {meanEquatorial.α}, {meanEquatorial.δ}");
+Console.WriteLine($"Apparent RA/Dec: {apparentEquatorial.α}, {apparentEquatorial.δ}");
+```
+
+`Moon` evaluates the periodic series at TT. `Moment.ToTerrestrialTime()` uses the library's approximate year-based ΔT estimate and treats UTC as UT1. The position includes nutation in `ApparentEclipticalCoordinates` and `ApparentEquitorialCoordinates`; `Nutation` exposes the applied ΔΨ and Δε values. The implementation is intended for library and example use, not high-precision ephemeris predictions.
+
+`ApparentEquitorialCoordinates`, distance, and horizontal parallax can be used directly with the topocentric transform:
+
+```
+SexigesimalAngle latitude = new(38, 55, 17);
+SexigesimalAngle longitude = new(-77, 3, 56); // east-positive, so negative is west
+
+EquitorialCoordinates topocentric = TopocentricParallax.ToTopocentric(
+    moon.ApparentEquitorialCoordinates,
+    moment,
+    latitude.ToDegrees(),
+    longitude.ToDegrees(),
+    81.0,
+    moon.HorizontalParallax);
+```
+
 ### Moon Phase Calculator
 This calculator takes any `DateRange` and returns a `List<MoonPhase>` of all New, First Quarter, Full, and Last Quarter phases within the date range. The algorithm looks for the first New Moon so it will back date as needed. See my blog entry [Calculate New Moon Dates](https://squarewidget.com/calculate-new-moon-dates/) for more information.
 
@@ -432,7 +504,7 @@ Date       Moon Phase     Peak Time (UTC)
 ```
 
 ### Solar Eclipse Calculator
-The `SolarEclipseCalculator` takes a `DateRange` and returns an `IEnumerable<SolarEclipse>` of all eclipses withing the date range. A `SolarEclipse` contains the date and time of the eclipse, the eclipse type, its magnitude, and the gamma (γ) value. Gamma can be positive or negative representing whether the axis of the shadow falls north or south of the equator, respectively.
+The `SolarEclipseCalculator` takes a `DateRange` and returns an `IEnumerable<SolarEclipse>` of all eclipses within the date range. A `SolarEclipse` contains the date and time of the eclipse, the eclipse type, its magnitude, and the gamma (γ) value. Gamma can be positive or negative representing whether the axis of the shadow falls north or south of the equator, respectively.
 
 There are four eclipse types: *total*, *annular*, *partial*, and *hybrid*. See my [detailed blog post on solar eclipses](https://squarewidget.com/calculate-future-solar-eclipses/) for a description of eclipse events and these four types. 
 
@@ -528,5 +600,5 @@ Callisto - X: -16.89   Y:  -1.05
 ### Sources
 Algorithms are implemented from many sources including formulas published on Wikipedia, NASA (DeltaT), the U.S. Naval Observatory, and from Jean Meeus *Astronomical Algorithms*, 2nd Edition. Additionally, I benefited from consulting W. M. Smart (*Textbook on Spherical Astronomy*, 6th Edition) and J. L. Lawrence (*Celestial Calculations*). Heliocentric spherical coordinates for all planets are from the [VSOP87 Theory Series D](https://phpsciencelabs.com/vsop87-source-code-generator-tool/) data. Last, the library uses nutations in longitude, obliquity, and the obliquity of the ecliptic from the [IAU SOFA](https://iausofa.org/) ANSI C code base.
 
-###  Contributing
-The code library will be stronger if there are many hands contributing to the code base. I welcome community pull requests for bug fixes, enhancements, and documentation. 
+### Contributing
+I welcome community pull requests for bug fixes, enhancements, and documentation. Please repro the issue if it's a bug and provide unit tests accordingly. 
